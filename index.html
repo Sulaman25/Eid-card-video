@@ -1,683 +1,488 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Eid Card Studio App UI + Animation</title>
-  <meta name="theme-color" content="#0d1722" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Eid GIF Generator Lite</title>
+  <meta name="theme-color" content="#102534">
+  <script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.js"></script>
   <style>
     :root{
-      --bg1:#0b1220; --bg2:#081118; --panel:rgba(16,25,35,.82); --panel2:rgba(13,21,29,.92);
-      --gold:#e8c67a; --gold2:#f5ddb0; --text:#f4eee4; --muted:#b8b1a4; --line:rgba(232,198,122,.14);
-      --paper1:#f6ebd2; --paper2:#eadcbf; --cardA:#143744;
+      --bg1:#102534; --bg2:#081118; --panel:#101923f2; --gold:#e8c67a; --gold2:#f5ddb0;
+      --text:#f4eee4; --muted:#c9c1b3;
     }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    *{box-sizing:border-box}
     body{
-      margin:0;font-family:Arial,sans-serif;color:var(--text);
-      background:
-        radial-gradient(circle at 20% 10%, rgba(255,219,132,.12), transparent 18%),
-        radial-gradient(circle at 85% 5%, rgba(255,219,132,.08), transparent 18%),
-        linear-gradient(180deg,var(--bg1),var(--bg2));
+      margin:0; font-family:Arial,sans-serif; color:var(--text);
+      background:linear-gradient(180deg,var(--bg1),var(--bg2));
       min-height:100vh;
     }
-    .app{max-width:1200px;margin:0 auto;padding:14px 14px 110px}
-    .topbar{
-      position:sticky;top:0;z-index:30;backdrop-filter:blur(14px);
-      background:linear-gradient(180deg, rgba(8,17,24,.92), rgba(8,17,24,.68));
-      border-bottom:1px solid var(--line);margin:-14px -14px 14px;padding:12px 14px;
+    .app{max-width:1180px; margin:0 auto; padding:16px}
+    .title{font-size:1.8rem; font-weight:800; color:var(--gold2)}
+    .sub{color:var(--muted); margin:6px 0 16px; line-height:1.45}
+    .shell{display:grid; grid-template-columns:390px 1fr; gap:16px}
+    @media (max-width:920px){.shell{grid-template-columns:1fr}}
+    .panel{
+      background:var(--panel);
+      border:1px solid rgba(216,181,111,.28);
+      border-radius:20px;
+      box-shadow:0 16px 32px rgba(0,0,0,.28);
+      padding:14px;
     }
-    .brand{display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .brand h1{margin:0;font-size:1.2rem;color:var(--gold2)}
-    .brand .tag{font-size:.8rem;color:var(--muted)}
-    .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:14px}
-    @media (max-width:980px){.hero{grid-template-columns:1fr}}
-    .phone{
-      background:linear-gradient(180deg, rgba(17,26,36,.88), rgba(8,14,20,.95));
-      border:1px solid rgba(232,198,122,.14);border-radius:28px;padding:16px;
-      box-shadow:0 24px 44px rgba(0,0,0,.28);
-    }
-    .previewWrap{position:sticky;top:72px}
     .section{
-      background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:14px;margin-bottom:12px;
-      box-shadow:0 10px 20px rgba(0,0,0,.12);
+      border:1px solid rgba(232,198,122,.14);
+      border-radius:16px;
+      padding:12px;
+      margin-bottom:12px;
+      background:rgba(255,255,255,.02);
     }
-    .section h3{margin:0 0 10px;font-size:1rem;color:var(--gold2)}
-    .sub{color:var(--muted);font-size:.84rem;line-height:1.4}
-    .canvasShell{
-      border-radius:28px;padding:12px;background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
-      border:1px solid rgba(232,198,122,.12)
-    }
-    canvas, video{width:100%;height:auto;border-radius:22px;display:block;background:#0c1720}
-    #videoPreview{display:none;margin-top:12px}
-    .tabs{display:flex;gap:8px;overflow:auto;padding-bottom:2px}
-    .tab{
-      white-space:nowrap;padding:10px 14px;border-radius:999px;border:1px solid var(--line);
-      background:rgba(255,255,255,.03);color:var(--text);font-weight:700;font-size:.9rem;cursor:pointer;
-    }
-    .tab.active{background:linear-gradient(180deg,#f7d88e,#d8a63d);color:#31230a;border-color:transparent}
-    .pane{display:none}
-    .pane.active{display:block}
-    label{display:block;font-size:.82rem;color:var(--muted);margin:0 0 6px}
+    .section h3{margin:0 0 10px; color:var(--gold2); font-size:1rem}
+    label{display:block; font-size:.85rem; color:var(--muted); margin:0 0 6px}
     input,select,textarea{
-      width:100%;padding:12px;border-radius:14px;background:var(--panel2);color:#fff;
-      border:1px solid rgba(232,198,122,.14);font:inherit;outline:none;
+      width:100%; padding:11px 12px; border-radius:12px;
+      background:#0b131a; color:#fff; border:1px solid rgba(232,198,122,.18); font:inherit;
     }
-    textarea{min-height:84px;resize:vertical}
-    .grid2,.grid3{display:grid;gap:10px}
-    .grid2{grid-template-columns:1fr 1fr}
-    .grid3{grid-template-columns:1fr 1fr 1fr}
-    @media (max-width:720px){.grid2,.grid3{grid-template-columns:1fr}}
-    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    textarea{min-height:72px; resize:vertical}
+    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    @media (max-width:560px){.grid2{grid-template-columns:1fr}}
+    .checks{display:flex; flex-wrap:wrap; gap:8px}
     .chip{
-      display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;
-      background:var(--panel2);border:1px solid rgba(232,198,122,.12);font-size:.9rem
+      display:inline-flex; align-items:center; gap:8px; padding:8px 11px; border-radius:999px;
+      border:1px solid rgba(232,198,122,.18); background:#0d151d; color:#fff; font-size:.92rem;
     }
-    .chip input{width:auto;accent-color:#d8a63d}
-    .row{display:flex;gap:10px;flex-wrap:wrap}
-    .btn{border:none;border-radius:999px;padding:12px 16px;font-weight:700;cursor:pointer;font:inherit}
-    .btn.primary{background:linear-gradient(180deg,#f7d88e,#d8a63d);color:#31230a}
-    .btn.secondary{background:#162230;color:#fff;border:1px solid rgba(232,198,122,.16)}
-    .btn.ghost{background:transparent;color:var(--gold2);border:1px dashed rgba(232,198,122,.24)}
-    .status{margin-top:10px;color:#bde7a8;min-height:1.1em;font-size:.9rem}
+    .chip input{width:auto; accent-color:#d8a63d}
+    .btnrow{display:flex; flex-wrap:wrap; gap:10px}
+    button{
+      border:none; border-radius:999px; padding:11px 16px; font-weight:700; cursor:pointer; font:inherit;
+    }
+    .primary{background:linear-gradient(180deg,#f7d88e,#d8a63d); color:#31230a}
+    .secondary{background:#162230; color:#fff; border:1px solid rgba(232,198,122,.18)}
+    .ghost{background:transparent; color:var(--gold2); border:1px dashed rgba(232,198,122,.28)}
+    .hint{font-size:.82rem; color:var(--muted); line-height:1.45}
+    .status{margin-top:8px; min-height:1.2em; color:#bde7a8}
     .generated{
-      border-radius:16px;padding:12px;background:#0a1016;border:1px solid rgba(232,198,122,.12);margin-top:10px
+      border-radius:14px; padding:10px; background:#0a1016;
+      border:1px solid rgba(232,198,122,.16); margin-top:10px;
     }
-    .generated h4{margin:0 0 6px;color:var(--gold);font-size:.9rem}
-    .rtl{direction:rtl;line-height:1.85}
-    .recipientList{
-      max-height:220px;overflow:auto;border:1px solid rgba(232,198,122,.12);border-radius:16px;padding:8px;background:#0a1016;margin-top:10px
+    .generated h4{margin:0 0 6px; color:var(--gold); font-size:.92rem}
+    #generatedArabic{direction:rtl; line-height:1.8}
+    .canvasWrap{text-align:center}
+    canvas{
+      width:min(100%,540px);
+      height:auto;
+      border-radius:22px;
+      border:1px solid rgba(232,198,122,.18);
+      box-shadow:0 18px 36px rgba(0,0,0,.28);
+      background:#0c1720;
     }
-    .recipientItem{padding:10px 12px;border-radius:12px;margin-bottom:6px;background:#111a24;border:1px solid rgba(232,198,122,.08)}
-    .recipientItem.active{background:#1a2734;border-color:rgba(232,198,122,.24)}
-    .bottomBar{
-      position:fixed;left:0;right:0;bottom:0;z-index:40;padding:10px 12px calc(10px + env(safe-area-inset-bottom));
-      background:linear-gradient(180deg, rgba(8,17,24,.08), rgba(8,17,24,.96) 30%);
-      backdrop-filter:blur(14px);border-top:1px solid var(--line);
-    }
-    .bottomBar .inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-    .pillStat{
-      display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:14px;
-      background:rgba(255,255,255,.03);border:1px solid var(--line);font-size:.85rem;color:var(--muted);margin-top:12px
+    #gifPreview{
+      width:min(100%,540px);
+      height:auto;
+      border-radius:22px;
+      border:1px solid rgba(232,198,122,.18);
+      margin-top:12px;
+      display:none;
     }
   </style>
 </head>
 <body>
 <div class="app">
-  <div class="topbar">
-    <div class="brand">
-      <div>
-        <h1>Eid Card Studio</h1>
-        <div class="tag">App UI + animated export merged</div>
-      </div>
-      <button class="btn secondary" id="previewTabBtn">Preview</button>
-    </div>
-  </div>
+  <div class="title">Eid GIF Generator Lite</div>
+  <div class="sub">Faster GIF generation, fixed message generator, and all text stays inside the message rectangle.</div>
 
-  <div class="hero">
-    <div class="phone">
+  <div class="shell">
+    <div class="panel">
       <div class="section">
-        <div class="tabs">
-          <button class="tab active" data-tab="recipients">Recipients</button>
-          <button class="tab" data-tab="design">Design</button>
-          <button class="tab" data-tab="message">Message</button>
-          <button class="tab" data-tab="export">Export</button>
-        </div>
-      </div>
-
-      <div class="pane active" id="pane-recipients">
-        <div class="section">
-          <h3>Recipients</h3>
-          <label for="recipientNames">Names</label>
-          <textarea id="recipientNames">Ahmed
-Ali
-Fatima</textarea>
-          <div class="row">
-            <button class="btn primary" id="loadRecipientsBtn">Load Recipients</button>
+        <h3>Card Details</h3>
+        <div class="grid2">
+          <div>
+            <label for="recipient">Recipient</label>
+            <input id="recipient" value="Dear Ahmed">
           </div>
-          <div class="grid2" style="margin-top:10px">
-            <div>
-              <label for="currentRecipientSelect">Current recipient</label>
-              <select id="currentRecipientSelect"></select>
-            </div>
-            <div>
-              <label for="recipientPrefix">Prefix</label>
-              <select id="recipientPrefix">
-                <option value="Dear ">Dear</option>
-                <option value="">Name only</option>
-                <option value="To ">To</option>
-              </select>
-            </div>
-          </div>
-          <div class="recipientList" id="recipientList"></div>
-        </div>
-      </div>
-
-      <div class="pane" id="pane-design">
-        <div class="section">
-          <h3>Card style</h3>
-          <div class="grid3">
-            <div>
-              <label for="theme">Theme</label>
-              <select id="theme">
-                <option value="midnight">Midnight Teal</option>
-                <option value="emerald">Emerald</option>
-                <option value="burgundy">Burgundy</option>
-                <option value="navy">Navy</option>
-                <option value="charcoal">Charcoal</option>
-              </select>
-            </div>
-            <div>
-              <label for="styleMode">Style</label>
-              <select id="styleMode">
-                <option value="luxury" selected>Luxury Gold</option>
-                <option value="classic">Classic Islamic</option>
-                <option value="modern">Modern Clean</option>
-                <option value="minimal">Minimal</option>
-              </select>
-            </div>
-            <div>
-              <label for="duration">Animation length</label>
-              <select id="duration">
-                <option value="2">2 sec</option>
-                <option value="3" selected>3 sec</option>
-                <option value="4">4 sec</option>
-              </select>
-            </div>
-          </div>
-          <div class="grid2" style="margin-top:10px">
-            <div>
-              <label for="fromName">From</label>
-              <input id="fromName" value="From Suleiman & Family">
-            </div>
-            <div>
-              <label for="lengthMode">Message length</label>
-              <select id="lengthMode">
-                <option value="short">Short</option>
-                <option value="medium" selected>Medium</option>
-                <option value="long">Long</option>
-              </select>
-            </div>
+          <div>
+            <label for="fromName">From</label>
+            <input id="fromName" value="From Suleiman & Family">
           </div>
         </div>
-
-        <div class="section">
-          <h3>Languages</h3>
-          <div class="chips">
-            <label class="chip"><input type="checkbox" class="langBox" value="ar" checked> Arabic</label>
-            <label class="chip"><input type="checkbox" class="langBox" value="en" checked> English</label>
-            <label class="chip"><input type="checkbox" class="langBox" value="ur" checked> Urdu</label>
-            <label class="chip"><input type="checkbox" class="langBox" value="tr"> Turkish</label>
-            <label class="chip"><input type="checkbox" class="langBox" value="fr"> French</label>
-            <label class="chip"><input type="checkbox" class="langBox" value="es"> Spanish</label>
-            <label class="chip"><input type="checkbox" class="langBox" value="id"> Indonesian</label>
-            <label class="chip"><input type="checkbox" class="langBox" value="ms"> Malay</label>
-            <label class="chip"><input type="checkbox" class="langBox" value="bn"> Bengali</label>
+        <div class="grid2" style="margin-top:10px">
+          <div>
+            <label for="theme">Theme</label>
+            <select id="theme">
+              <option value="midnight">Midnight Teal</option>
+              <option value="emerald">Emerald</option>
+              <option value="burgundy">Burgundy</option>
+              <option value="navy">Navy</option>
+              <option value="charcoal">Charcoal</option>
+            </select>
+          </div>
+          <div>
+            <label for="frames">GIF speed</label>
+            <select id="frames">
+              <option value="8">Fast</option>
+              <option value="10" selected>Balanced</option>
+              <option value="14">Smoother</option>
+            </select>
           </div>
         </div>
       </div>
 
-      <div class="pane" id="pane-message">
-        <div class="section">
-          <h3>Quick presets</h3>
-          <div class="row">
-            <button class="btn secondary presetBtn" data-tone="Islamic">Parents</button>
-            <button class="btn secondary presetBtn" data-tone="Warm">Friend</button>
-            <button class="btn secondary presetBtn" data-tone="Formal">Colleague</button>
-            <button class="btn secondary presetBtn" data-tone="Poetic">Spouse</button>
-          </div>
-        </div>
-
-        <div class="section">
-          <h3>Generator</h3>
-          <div class="grid3">
-            <div>
-              <label for="tone">Tone</label>
-              <select id="tone">
-                <option selected>Mixed</option>
-                <option>Islamic</option>
-                <option>Warm</option>
-                <option>Poetic</option>
-                <option>Formal</option>
-              </select>
-            </div>
-            <div>
-              <label for="messageMode">Mode</label>
-              <select id="messageMode">
-                <option value="generated" selected>Generated</option>
-                <option value="custom">Custom only</option>
-                <option value="mixed">Generated + note</option>
-              </select>
-            </div>
-            <div>
-              <label for="showEnglishAs">English style</label>
-              <select id="showEnglishAs">
-                <option value="normal" selected>Normal</option>
-                <option value="compact">Compact</option>
-              </select>
-            </div>
-          </div>
-          <div class="row" style="margin-top:10px">
-            <button class="btn primary" id="generateBtn">Generate Message</button>
-            <button class="btn secondary" id="exportCurrentAnimatedBtn">Export Current Animated</button>
-          </div>
-          <div id="generatedFieldsContainer"></div>
-          <div class="status" id="status"></div>
-        </div>
-
-        <div class="section">
-          <h3>Personal note</h3>
-          <textarea id="customMessage" placeholder="Paste one personal note here."></textarea>
+      <div class="section">
+        <h3>Languages</h3>
+        <div class="checks">
+          <label class="chip"><input type="checkbox" class="langBox" value="ar" checked> Arabic</label>
+          <label class="chip"><input type="checkbox" class="langBox" value="en" checked> English</label>
+          <label class="chip"><input type="checkbox" class="langBox" value="ur"> Urdu</label>
+          <label class="chip"><input type="checkbox" class="langBox" value="tr"> Turkish</label>
+          <label class="chip"><input type="checkbox" class="langBox" value="fr"> French</label>
+          <label class="chip"><input type="checkbox" class="langBox" value="es"> Spanish</label>
         </div>
       </div>
 
-      <div class="pane" id="pane-export">
-        <div class="section">
-          <h3>Exports</h3>
-          <div class="sub">PNG is static. Animated export uses browser video format, often WebM.</div>
-          <div class="row" style="margin-top:10px">
-            <button class="btn primary" id="oneClickPngBtn">Export All PNGs</button>
-            <button class="btn secondary" id="oneClickAnimatedBtn">Export All Animated</button>
-            <button class="btn secondary" id="saveCurrentPngBtn">Save Current PNG</button>
+      <div class="section">
+        <h3>Message Generator</h3>
+        <div class="grid2">
+          <div>
+            <label for="relationship">Relationship</label>
+            <select id="relationship">
+              <option>Family</option>
+              <option>Close Friend</option>
+              <option>Colleague</option>
+              <option>Neighbour</option>
+              <option selected>General</option>
+            </select>
+          </div>
+          <div>
+            <label for="tone">Tone</label>
+            <select id="tone">
+              <option>Warm</option>
+              <option>Poetic</option>
+              <option>Spiritual</option>
+              <option>Joyful</option>
+              <option>Formal</option>
+            </select>
           </div>
         </div>
+        <div class="btnrow" style="margin-top:10px">
+          <button class="primary" id="generateBtn" type="button">Generate Message</button>
+          <button class="secondary" id="useBtn" type="button">Use Generated</button>
+        </div>
+        <div class="generated">
+          <h4>Generated Arabic</h4>
+          <div id="generatedArabic"></div>
+        </div>
+        <div class="generated">
+          <h4>Generated English</h4>
+          <div id="generatedEnglish"></div>
+        </div>
+        <div class="status" id="status"></div>
+      </div>
+
+      <div class="section">
+        <h3>Custom Text</h3>
+        <label for="englishMessage">English</label>
+        <textarea id="englishMessage">May Allah accept our fasting and prayers, fill your home with peace, and bless you with joy on this beautiful Eid.</textarea>
+        <label for="urduMessage" style="margin-top:10px">Urdu</label>
+        <textarea id="urduMessage">عید مبارک! اللہ آپ کی عبادات قبول فرمائے اور آپ کے گھر کو خوشیوں سے بھر دے۔</textarea>
+        <label for="turkishMessage" style="margin-top:10px">Turkish</label>
+        <textarea id="turkishMessage">Eid Mübarek! Allah ibadetlerinizi kabul etsin ve evinizi bereketle doldursun.</textarea>
+        <label for="frenchMessage" style="margin-top:10px">French</label>
+        <textarea id="frenchMessage">Joyeux Aïd ! Qu’Allah accepte vos prières et remplisse votre foyer de paix et de bénédictions.</textarea>
+        <label for="spanishMessage" style="margin-top:10px">Spanish</label>
+        <textarea id="spanishMessage">¡Feliz Eid! Que Allah acepte tus oraciones y llene tu hogar de paz y bendiciones.</textarea>
+      </div>
+
+      <div class="section">
+        <h3>Create GIF</h3>
+        <div class="btnrow">
+          <button class="primary" id="generateGifBtn" type="button">Generate GIF</button>
+          <button class="secondary" id="downloadGifBtn" type="button" disabled>Download GIF</button>
+        </div>
+        <div class="hint" style="margin-top:10px">This lighter version uses a smaller canvas and fewer frames, so it should finish much faster on mobile.</div>
       </div>
     </div>
 
-    <div class="previewWrap">
-      <div class="section canvasShell">
-        <canvas id="previewCanvas" width="720" height="980"></canvas>
-        <video id="videoPreview" controls playsinline></video>
-      </div>
-      <div class="pillStat">
-        <span>Current recipient</span>
-        <strong id="currentRecipientLabel">Ahmed</strong>
-      </div>
+    <div class="panel canvasWrap">
+      <div class="hint" style="margin-bottom:10px">Live preview</div>
+      <canvas id="previewCanvas" width="540" height="660"></canvas>
+      <img id="gifPreview" alt="Generated GIF preview">
     </div>
-  </div>
-</div>
-
-<div class="bottomBar">
-  <div class="inner">
-    <button class="btn primary" id="bottomGenerateBtn">Generate</button>
-    <button class="btn secondary" id="bottomSaveBtn">Save PNG</button>
-    <button class="btn secondary" id="bottomAnimatedBtn">Animated</button>
   </div>
 </div>
 
 <script>
 const THEMES = {
-  midnight:{bg1:"#102534",bg2:"#081118",gold:"#e8c67a",gold2:"#f5ddb0",paper1:"#f6ebd2",paper2:"#eadcbf",cardA:"#143744"},
-  emerald:{bg1:"#143426",bg2:"#08140e",gold:"#e8c67a",gold2:"#f5ddb0",paper1:"#f6ebd2",paper2:"#eadcbf",cardA:"#17422d"},
-  burgundy:{bg1:"#3b1922",bg2:"#16090e",gold:"#e8c67a",gold2:"#f5ddb0",paper1:"#f6ebd2",paper2:"#eadcbf",cardA:"#4e1e2a"},
-  navy:{bg1:"#16284d",bg2:"#0a1020",gold:"#e8c67a",gold2:"#f5ddb0",paper1:"#f6ebd2",paper2:"#eadcbf",cardA:"#203663"},
-  charcoal:{bg1:"#2c2d30",bg2:"#131416",gold:"#e8c67a",gold2:"#f5ddb0",paper1:"#f6ebd2",paper2:"#eadcbf",cardA:"#3a3d42"}
+  midnight:{bg1:"#102534",bg2:"#081118",gold:"#e8c67a",gold2:"#f5ddb0",paper1:"#f4e7cb",paper2:"#eadcbf",cardA:"#143744"},
+  emerald:{bg1:"#143426",bg2:"#08140e",gold:"#e8c67a",gold2:"#f5ddb0",paper1:"#f4e7cb",paper2:"#eadcbf",cardA:"#17422d"},
+  burgundy:{bg1:"#3b1922",bg2:"#16090e",gold:"#e8c67a",gold2:"#f5ddb0",paper1:"#f4e7cb",paper2:"#eadcbf",cardA:"#4e1e2a"},
+  navy:{bg1:"#16284d",bg2:"#0a1020",gold:"#e8c67a",gold2:"#f5ddb0",paper1:"#f4e7cb",paper2:"#eadcbf",cardA:"#203663"},
+  charcoal:{bg1:"#2c2d30",bg2:"#131416",gold:"#e8c67a",gold2:"#f5ddb0",paper1:"#f4e7cb",paper2:"#eadcbf",cardA:"#3a3d42"}
 };
+
 const DATA = {
-  ar:{open:["عيد مبارك،","كل عام وأنتم بخير،","أطيب التهاني بعيد الفطر،","أهديكم أجمل التهاني،"],
-      mid:{Mixed:["تقبل الله منا ومنكم صالح الأعمال وجعل أيامكم مليئة بالسكينة والفرح.","نسأل الله أن يملأ هذا العيد قلوبكم نورًا وبيوتكم بركة.","أسأل الله لكم قبولًا ورحمة وفرحًا جميلًا."],Islamic:["تقبل الله صيامكم وقيامكم ونياتكم.","نسأل الله أن يجدد الإيمان في القلوب والرحمة في البيوت.","أحاطكم الله بالمغفرة والهداية والرضا."],Warm:["أرسل لكم محبتي ودعائي الصادق في هذا اليوم المبارك.","أسأل الله أن يكتب لكم عيدًا هادئًا ومليئًا بالمسرات.","أذكركم اليوم بكل محبة ودعوات طيبة."],Poetic:["ليكن ضوء العيد سكينة تمسح الهم وتوقظ الرجاء.","ليأت العيد كالفجر لطيفًا ومليئًا بالبشائر.","ولتزهر القلوب شكرًا كما تتلألأ فوانيس العيد في السماء."],Formal:["تفضلوا بقبول أصدق التهاني وأطيب الأمنيات.","نسأل الله لكم السلامة والتوفيق في هذه المناسبة المباركة.","مع الدعاء لكم بعيد مبارك مفعم بالخير والنجاح."]},
-      end:["وتقبل الله طاعاتكم.","وجعل بيوتكم عامرة بالرحمة والسرور.","ورزقكم سكينة تدوم وفرحة تتجدد.","وكتب لكم فرحًا لا ينقطع وسكينة لا تزول."]},
-  en:{open:["Eid Mubarak!","Wishing you a blessed Eid,","With heartfelt Eid wishes,","On this joyous Eid,"],
-      mid:{Mixed:["May Allah accept your عبادات and fill your home with peace, joy, and barakah.","Wishing you a beautiful Eid full of gratitude, mercy, and happiness.","May this Eid bring calm to your heart and blessings to your family."],Islamic:["May Allah accept your fasting, prayers, and sincere intentions.","May this Eid renew faith in your heart and mercy in your home.","May Allah surround you with forgiveness, guidance, and quiet contentment."],Warm:["Sending you love and warm prayers on this special day.","Thinking of you with affection and heartfelt duas today.","Wishing you comfort, closeness, and a day full of gentle happiness."],Poetic:["May the moonlight of Eid soften every worry and brighten every hope.","May this Eid arrive like dawn, gentle and full of promise.","May your heart bloom with gratitude as the lanterns of Eid rise in the night."],Formal:["Please accept my sincere greetings on the occasion of Eid ul-Fitr.","Wishing you peace, prosperity, and well-being on this blessed occasion.","With sincere regards and best wishes for a blessed Eid."]},
-      end:["May Allah accept our good deeds.","Wishing you continued peace and blessings.","May your days ahead be full of barakah.","May your home and heart be filled with happiness and grace."]},
-  ur:{open:["عید مبارک،","آپ کو عید کی خوشیاں مبارک ہوں،","دل سے عید مبارک،","آپ سب کو عید مبارک،"],
-      mid:{Mixed:["اللہ آپ کی عبادات قبول فرمائے اور آپ کے دل کو سکون دے۔","یہ عید آپ کے گھر میں رحمت، خوشی اور برکت لے کر آئے۔","اللہ آپ کی زندگی کو خوشیوں اور آسانیوں سے بھر دے۔"],Islamic:["اللہ آپ کے روزے، نمازیں اور دعائیں قبول فرمائے۔","اللہ آپ کو رمضان کے بعد بھی ثابت قدمی عطا فرمائے۔","اللہ آپ کو مغفرت، رحمت اور ہدایت نصیب فرمائے۔"],Warm:["اللہ آپ کو دل کی خوشی اور گھر کی راحت عطا فرمائے۔","آپ کی عید محبت، اپنائیت اور خوشیوں سے بھر جائے۔","اللہ کرے یہ دن آپ کے لیے بے حد خوبصورت ہو۔"],Poetic:["چاند کی روشنی آپ کی زندگی میں سکون لے آئے۔","یہ عید صبح کی پہلی روشنی کی طرح امید جگائے۔","دلوں میں شکر اور آنکھوں میں خوشی کی چمک رہے۔"],Formal:["آپ کو عید الفطر کی دلی مبارکباد پیش ہے۔","اللہ کرے یہ مبارک موقع آپ کے لیے خیر و برکت کا باعث ہو۔","ہم آپ کے لیے امن، صحت اور کامیابی کی دعا کرتے ہیں۔"]},
-      end:["اور آپ کو ہمیشہ خوش رکھے۔","اور آپ کے گھر میں برکت دے۔","اور آپ کی ہر دعا قبول فرمائے۔","اور آپ کی زندگی کو خوشیوں سے روشن کر دے۔"]},
-  extra:{
-    tr:["Eid Mübarek! Allah ibadetlerinizi kabul etsin ve evinizi bereketle doldursun.","Mübarek Eid gününde Allah size sevinç, sağlık ve huzur nasip etsin."],
-    fr:["Joyeux Aïd ! Qu’Allah accepte vos prières et remplisse votre foyer de paix et de bénédictions.","Que cette fête de l’Aïd vous apporte sérénité, joie et miséricorde."],
-    es:["¡Feliz Eid! Que Allah acepte tus oraciones y llene tu hogar de paz y bendiciones.","Que este Eid te traiga alegría, tranquilidad y muchas bendiciones."],
-    id:["Selamat Idulfitri! Semoga Allah menerima ibadahmu dan memenuhi rumahmu dengan damai dan berkah.","Semoga hari raya ini membawa ketenangan, kebahagiaan, dan keberkahan untukmu."],
-    ms:["Selamat Hari Raya Aidilfitri! Semoga Allah menerima ibadah anda dan mengurniakan keamanan serta keberkatan.","Semoga Aidilfitri ini membawa kegembiraan, ketenangan, dan rahmat ke dalam hidup anda."],
-    bn:["ঈদ মোবারক! আল্লাহ আপনার ইবাদত কবুল করুন এবং আপনার ঘরকে শান্তি ও বরকতে ভরে দিন।","এই ঈদ আপনার জীবনে সুখ, শান্তি ও নতুন আশার আলো নিয়ে আসুক।"]
+  ar:{
+    open:{Family:["إلى عائلتنا الغالية،","إلى أهلي الأحبة،","إلى الأسرة الكريمة،"],"Close Friend":["إلى صديق عزيز،","إلى صديقي الغالي،","إلى رفيق القلب،"],Colleague:["إلى زميل كريم،","إلى زميل عزيز،","مع أطيب التهاني،"],Neighbour:["إلى جار كريم،","إلى جيراننا الأعزاء،","مع خالص التهاني،"],General:["عيد مبارك،","أطيب التهاني بعيد الفطر،","كل عام وأنتم بخير،"]},
+    mid:{Warm:["أرسل لكم محبتي ودعائي الصادق في هذا اليوم المبارك.","أسأل الله أن يكتب لكم عيدًا هادئًا ومليئًا بالمسرات.","أذكركم اليوم بكل محبة ودعوات طيبة."],Poetic:["ليكن ضوء العيد سكينة تمسح الهم وتوقظ الرجاء.","ليأت العيد كالفجر لطيفًا ومليئًا بالبشائر.","ولتزهر القلوب شكرًا كما تتلألأ فوانيس العيد في السماء."],Spiritual:["تقبل الله صيامكم وقيامكم ونياتكم وثبتكم بعد رمضان.","نسأل الله أن يجدد الإيمان في القلوب والرحمة في البيوت.","أحاطكم الله بالمغفرة والهداية والرضا."],Joyful:["جعله الله يومًا مفعمًا بالضحكات والحلوى والذكريات الجميلة.","أدام الله عليكم بهجة العيد وفرحة اللقاء.","ليكن عيدكم عامرًا بالسرور والمواقف السعيدة."],Formal:["تفضلوا بقبول أصدق التهاني وأطيب الأمنيات بمناسبة عيد الفطر.","نسأل الله لكم السلامة والتوفيق والازدهار في هذه المناسبة المباركة.","مع الدعاء لكم بعيد مبارك مفعم بالخير والنجاح."]},
+    wish:{Family:["جعل الله بيوتكم عامرة بالرحمة والسرور.","بارك الله لكم في أهلكم وأوقاتكم وفرحتكم.","رزقكم الله سكينة تدوم وفرحة تتجدد."],"Close Friend":["نور الله دربك وشرح صدرك ويسر أمرك.","جعل الله عيدك سلامًا وفرحًا ودعاءً مستجابًا.","رزقك الله قلبًا مطمئنًا وأيامًا مشرقة."],Colleague:["كل عام وأنتم بخير وسلام ونجاح.","جعل الله هذه المناسبة بابًا للخير والتوفيق لكم.","نسأل الله لكم السلامة والازدهار والراحة."],Neighbour:["نسأل الله أن يملأ بيتكم بالخير والطمأنينة.","عيدكم مبارك وفرحتكم دائمة بإذن الله.","جعل الله أيامكم عامرة بالمودة والسكينة."],General:["تقبل الله طاعاتكم وملأ أيامكم رحمة وسرورًا.","جعله الله عيد خير وفرح وبدايات جميلة.","أنار الله قلوبكم وبيوتكم بالسعادة والبركة."]},
+    close:["تقبل الله منا ومنكم صالح الأعمال.","وكل عام وأنتم بخير وسلام.","مع خالص الدعاء والمودة."]
+  },
+  en:{
+    open:{Family:["To our beloved family,","Dear family,","To my dear family,"],"Close Friend":["Dear friend,","To a cherished friend,","My dear friend,"],Colleague:["Dear colleague,","To a valued colleague,","With warm Eid wishes,"],Neighbour:["Dear neighbour,","To our wonderful neighbour,","With heartfelt Eid wishes,"],General:["Eid Mubarak!","Wishing you a blessed Eid,","With heartfelt Eid wishes,"]},
+    mid:{Warm:["Sending you love and warm prayers on this special day.","Thinking of you with affection and heartfelt duas today.","Wishing you comfort, closeness, and a day full of gentle happiness."],Poetic:["May the moonlight of Eid soften every worry and brighten every hope.","May this Eid arrive like dawn, gentle and full of promise.","May your heart bloom with gratitude as the lanterns of Eid rise in the night."],Spiritual:["May Allah accept your fasting, prayers, and sincere intentions.","May this Eid renew faith in your heart and mercy in your home.","May Allah surround you with forgiveness, guidance, and quiet contentment."],Joyful:["May your day be filled with laughter, sweet treats, and unforgettable moments.","Wishing you a celebration full of smiles and happy memories.","May this Eid bring joyful gatherings and plenty of reasons to smile."],Formal:["Please accept my sincere greetings on the occasion of Eid ul-Fitr.","Wishing you peace, prosperity, and well-being on this blessed occasion.","With sincere regards and best wishes for a blessed Eid."]},
+    wish:{Family:["may your home be filled with mercy, warmth, and laughter.","may Allah place barakah in every corner of your home.","may peace, affection, and joy stay with your family always."],"Close Friend":["may Allah reward your heart with light and your path with ease.","may your Eid be bright with peace, sincere smiles, and answered prayers.","may this beautiful day bring you calm, joy, and unforgettable moments."],Colleague:["may this occasion bring serenity, prosperity, and goodwill.","may this Eid bring you peace, continued success, and happiness.","wishing you well-being, grace, and renewed blessings."],Neighbour:["may your home be filled with kindness, peace, and sweet moments.","may this Eid bring blessings to your family and joy to your doorstep.","wishing you a peaceful home and a joyful Eid."],General:["may Allah accept your prayers and fill your days with peace and mercy.","may this Eid bring joy, light, and beautiful new beginnings.","may your home and heart be filled with happiness and barakah."]},
+    close:["May Allah accept our good deeds.","Wishing you continued peace and blessings.","With warm regards and heartfelt duas."]
   }
 };
 
 const $ = id => document.getElementById(id);
-let recipients = [];
-let currentRecipientIndex = 0;
-let lastBlob = null;
+let gifBlob = null;
 
 function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-function selectedLangs(){ return [...document.querySelectorAll(".langBox:checked")].map(x => x.value); }
-function langLabel(code){ return {ar:"Arabic",en:"English",ur:"Urdu",tr:"Turkish",fr:"French",es:"Spanish",id:"Indonesian",ms:"Malay",bn:"Bengali"}[code] || code; }
-function parseRecipients(){
-  const raw = $("recipientNames").value;
-  recipients = raw.split(/\n|,/).map(x => x.trim()).filter(Boolean);
-  if(!recipients.length) recipients = ["Ahmed"];
-  if(currentRecipientIndex >= recipients.length) currentRecipientIndex = 0;
-  renderRecipients();
-}
-function renderRecipients(){
-  const sel = $("currentRecipientSelect");
-  sel.innerHTML = "";
-  recipients.forEach((name, idx) => {
-    const opt = document.createElement("option");
-    opt.value = idx; opt.textContent = name; sel.appendChild(opt);
-  });
-  sel.value = String(currentRecipientIndex);
-  $("currentRecipientLabel").textContent = currentRecipient();
-  const list = $("recipientList");
-  list.innerHTML = "";
-  recipients.forEach((name, idx) => {
-    const div = document.createElement("div");
-    div.className = "recipientItem" + (idx === currentRecipientIndex ? " active" : "");
-    div.textContent = (idx + 1) + ". " + name;
-    div.onclick = () => { currentRecipientIndex = idx; renderRecipients(); drawPreview(0,90); };
-    list.appendChild(div);
-  });
-}
-function currentRecipient(){
-  const prefix = $("recipientPrefix").value;
-  return prefix + (recipients[currentRecipientIndex] || "Ahmed");
-}
-function ensureGeneratedFields(){
-  const container = $("generatedFieldsContainer");
-  container.innerHTML = "";
-  for(const code of selectedLangs()){
-    const div = document.createElement("div");
-    div.className = "generated";
-    const h = document.createElement("h4");
-    h.textContent = "Generated " + langLabel(code);
-    const body = document.createElement("div");
-    body.id = "generated_" + code;
-    if(code === "ar" || code === "ur" || code === "bn") body.className = "rtl";
-    div.appendChild(h); div.appendChild(body); container.appendChild(div);
-  }
-}
-function buildMessage(lang){
-  const tone = $("tone").value;
-  const length = $("lengthMode").value;
-  if(lang === "ar"){
-    let parts = [pick(DATA.ar.open), pick(DATA.ar.mid[tone])];
-    if(length !== "short") parts.push(pick(DATA.ar.end));
-    return parts.join(" ");
-  }
-  if(lang === "en"){
-    let parts = [pick(DATA.en.open), pick(DATA.en.mid[tone])];
-    if(length !== "short") parts.push(pick(DATA.en.end));
-    return parts.join(" ");
-  }
-  if(lang === "ur"){
-    let parts = [pick(DATA.ur.open), pick(DATA.ur.mid[tone])];
-    if(length !== "short") parts.push(pick(DATA.ur.end));
-    return parts.join(" ");
-  }
-  return pick(DATA.extra[lang]);
-}
+function langs(){ return [...document.querySelectorAll(".langBox:checked")].map(x => x.value); }
+
 function generateMessage(){
-  ensureGeneratedFields();
-  for(const code of selectedLangs()){
-    const el = $("generated_" + code);
-    if(el) el.textContent = buildMessage(code);
-  }
-  $("status").textContent = "Design ready for " + recipients.length + " recipient(s).";
-  drawPreview(0,90);
+  const r = $("relationship").value;
+  const t = $("tone").value;
+  const ar = [pick(DATA.ar.open[r]), pick(DATA.ar.mid[t]), pick(DATA.ar.wish[r]), pick(DATA.ar.close)].join(" ");
+  const en = [pick(DATA.en.open[r]), pick(DATA.en.mid[t]), pick(DATA.en.wish[r]), pick(DATA.en.close)].join(" ");
+  $("generatedArabic").textContent = ar;
+  $("generatedEnglish").textContent = en;
+  $("status").textContent = "New message generated.";
+  drawPreview(0,1);
 }
-function getGeneratedMap(){
-  const out = {};
-  for(const code of ["ar","en","ur","tr","fr","es","id","ms","bn"]){
-    const el = document.getElementById("generated_" + code);
-    out[code] = el ? el.textContent : "";
-  }
-  return out;
+
+function useGenerated(){
+  $("englishMessage").value = $("generatedEnglish").textContent || $("englishMessage").value;
+  drawPreview(0,1);
+  $("status").textContent = "Generated message applied.";
 }
-function resolveText(lang){
-  const mode = $("messageMode").value;
-  const custom = $("customMessage").value.trim();
-  const generated = getGeneratedMap();
-  if(mode === "generated") return generated[lang] || "";
-  if(mode === "custom") return custom || generated[lang] || "";
-  if(!custom) return generated[lang] || "";
-  return (generated[lang] ? generated[lang] + " " : "") + custom;
-}
-function applyPreset(tone){ $("tone").value = tone; generateMessage(); }
-function styleConfig(){
-  const m = $("styleMode").value;
-  if(m === "minimal") return {orn:false, lanterns:false, particles:8, moonGlow:.14, paperRadius:14, goldAlpha:.18};
-  if(m === "modern") return {orn:true, lanterns:false, particles:16, moonGlow:.18, paperRadius:20, goldAlpha:.22};
-  if(m === "classic") return {orn:true, lanterns:true, particles:18, moonGlow:.2, paperRadius:18, goldAlpha:.3};
-  return {orn:true, lanterns:true, particles:26, moonGlow:.26, paperRadius:20, goldAlpha:.35};
-}
+
 function state(){
-  const theme = THEMES[$("theme").value];
-  const lines = [];
-  for(const code of selectedLangs()){
-    const t = resolveText(code);
-    if(t) lines.push([code, t]);
-  }
-  return {recipient: currentRecipient(), fromName: $("fromName").value.trim() || "From Suleiman & Family", theme, lines};
+  return {
+    recipient: $("recipient").value.trim() || "Dear Ahmed",
+    fromName: $("fromName").value.trim() || "From Suleiman & Family",
+    theme: THEMES[$("theme").value],
+    lines: [
+      ["ar", $("generatedArabic").textContent || "تقبل الله منا ومنكم صالح الأعمال."],
+      ["en", $("englishMessage").value.trim()],
+      ["ur", $("urduMessage").value.trim()],
+      ["tr", $("turkishMessage").value.trim()],
+      ["fr", $("frenchMessage").value.trim()],
+      ["es", $("spanishMessage").value.trim()]
+    ].filter(x => langs().includes(x[0]) && x[1])
+  };
 }
+
 function wrapLines(ctx, text, maxWidth){
-  const words = text.split(" "); let line = ""; const lines = [];
+  const words = text.split(" ");
+  let line = "";
+  const lines = [];
   for(let i=0;i<words.length;i++){
     const test = line + words[i] + " ";
-    if(ctx.measureText(test).width > maxWidth && line){ lines.push(line.trim()); line = words[i] + " "; }
-    else line = test;
+    if(ctx.measureText(test).width > maxWidth && line){
+      lines.push(line.trim());
+      line = words[i] + " ";
+    } else {
+      line = test;
+    }
   }
   if(line.trim()) lines.push(line.trim());
   return lines;
 }
-function fitLines(ctx, items, boxHeight){
-  let base = 22;
-  while(base >= 11){
-    let total = 0; const fitted = [];
-    for(const item of items){
-      ctx.font = item.font.replace("{size}", base + item.bump);
+
+function fitLines(ctx, lineSets, boxHeight, initialSize, minSize, family){
+  let size = initialSize;
+  while(size >= minSize){
+    ctx.font = family.replace("{size}", size);
+    let totalHeight = 0;
+    const fitted = [];
+    for(const item of lineSets){
+      ctx.font = item.font.replace("{size}", size + item.delta);
       const lines = wrapLines(ctx, item.text, item.maxWidth);
-      const h = lines.length * item.lineHeight(base + item.bump) + item.gap;
-      total += h; fitted.push({...item, size: base + item.bump, lines});
+      fitted.push({...item, lines, size: size + item.delta});
+      totalHeight += lines.length * item.lineHeight + item.gap;
     }
-    if(total <= boxHeight) return fitted;
-    base -= 1;
+    if(totalHeight <= boxHeight) return fitted;
+    size -= 2;
   }
-  return items.map(item => {
-    ctx.font = item.font.replace("{size}", 11 + item.bump);
-    return {...item, size: 11 + item.bump, lines: wrapLines(ctx, item.text, item.maxWidth).slice(0,4)};
+  return lineSets.map(item => {
+    ctx.font = item.font.replace("{size}", minSize + item.delta);
+    const lines = wrapLines(ctx, item.text, item.maxWidth).slice(0,3);
+    return {...item, lines, size: minSize + item.delta};
   });
 }
+
 function roundRect(ctx, x, y, w, h, r, fill){
   ctx.beginPath();
-  ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
-  ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
   if(fill) ctx.fill();
 }
+
 function drawPreview(frame, total){
   const cv = $("previewCanvas");
   const ctx = cv.getContext("2d");
   const s = state();
   const w = cv.width, h = cv.height;
-  const phase = frame / Math.max(1,total);
-  const style = styleConfig();
 
   const grad = ctx.createLinearGradient(0,0,0,h);
-  grad.addColorStop(0, s.theme.bg1); grad.addColorStop(1, s.theme.bg2);
-  ctx.fillStyle = grad; ctx.fillRect(0,0,w,h);
+  grad.addColorStop(0, s.theme.bg1);
+  grad.addColorStop(1, s.theme.bg2);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,w,h);
 
-  const glow = ctx.createRadialGradient(112,98,18,112,98,170);
-  glow.addColorStop(0,`rgba(255,220,140,${style.moonGlow})`); glow.addColorStop(1,"rgba(255,220,140,0)");
-  ctx.fillStyle = glow; ctx.fillRect(0,0,w,h);
+  const glow = ctx.createRadialGradient(86,88,16,86,88,110);
+  glow.addColorStop(0,"rgba(255,220,140,0.25)");
+  glow.addColorStop(1,"rgba(255,220,140,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0,0,w,h);
 
-  for(let i=0;i<58;i++){
-    const x=(i*71)%w, y=(i*43)%260, a=0.3 + 0.5*Math.sin(phase*Math.PI*2+i);
-    ctx.fillStyle=`rgba(255,241,207,${Math.max(0.15,a)})`; ctx.fillRect(x,y,2,2);
+  for(let i=0;i<40;i++){
+    const x=(i*71)%w, y=(i*43)%180;
+    const a=0.4 + 0.4*Math.sin((frame/Math.max(1,total))*Math.PI*2+i);
+    ctx.fillStyle=`rgba(255,241,207,${Math.max(0.15,a)})`;
+    ctx.fillRect(x,y,2,2);
   }
-  for(let i=0;i<style.particles;i++){
-    const x=(i*29 + frame*7)%w, y=h-((i*37 + frame*9)%(h+70));
+  for(let i=0;i<16;i++){
+    const x=(i*29 + frame*9)%w, y=h-((i*37 + frame*11)%(h+60));
     ctx.fillStyle="rgba(255,213,120,0.72)";
     ctx.beginPath(); ctx.arc(x,y,2+(i%2),0,Math.PI*2); ctx.fill();
   }
 
-  ctx.fillStyle = "#ffd77e"; ctx.beginPath(); ctx.arc(112,112,56,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle = s.theme.cardA; ctx.beginPath(); ctx.arc(144,122,48,0,Math.PI*2); ctx.fill();
+  // moon
+  ctx.fillStyle = "#ffd77e";
+  ctx.beginPath(); ctx.arc(92,92,48,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = s.theme.cardA;
+  ctx.beginPath(); ctx.arc(120,102,42,0,Math.PI*2); ctx.fill();
 
-  if(style.lanterns){
-    for(let i=0;i<5;i++){
-      const lx = 52 + i*130 + Math.sin(phase*Math.PI*2+i)*7;
-      const ly = 24 + ((frame*7 + i*55)%(h+90)) - 55;
-      ctx.strokeStyle=`rgba(229,196,120,${0.75 + 0.25*Math.sin(phase*Math.PI*2+i)})`;
-      ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(lx+8,ly); ctx.lineTo(lx+8,ly+8); ctx.stroke();
-      ctx.fillStyle="rgba(255,190,80,.34)"; roundRect(ctx,lx,ly+8,16,24,5,true);
-    }
-  }
-  if(style.orn){
-    ctx.strokeStyle=`rgba(240,205,130,${style.goldAlpha})`; ctx.lineWidth=2;
-    [[14,14,92,92],[w-106,14,92,92],[14,h-106,92,92],[w-106,h-106,92,92]].forEach(b=>ctx.strokeRect(b[0],b[1],b[2],b[3]));
+  // lanterns
+  for(let i=0;i<4;i++){
+    const lx = 42 + i*110 + Math.sin((frame/Math.max(1,total))*Math.PI*2+i)*6;
+    const ly = 16 + ((frame*8 + i*60)%(h+80)) - 60;
+    ctx.strokeStyle="rgba(229,196,120,.8)";
+    ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(lx+8,ly); ctx.lineTo(lx+8,ly+8); ctx.stroke();
+    ctx.fillStyle="rgba(255,190,80,.35)";
+    ctx.strokeStyle="rgba(244,199,117,.8)";
+    roundRect(ctx,lx,ly+8,16,24,5,true);
   }
 
-  ctx.textAlign = "center";
-  ctx.shadowColor = "rgba(255,221,160,0.5)";
-  ctx.shadowBlur = 12 + 6*Math.sin(phase*Math.PI*2);
+  // ornaments
+  ctx.strokeStyle="rgba(240,205,130,.35)";
+  ctx.lineWidth=2;
+  [[12,12,78,78],[w-90,12,78,78],[12,h-90,78,78],[w-90,h-90,78,78]].forEach(b=>ctx.strokeRect(b[0],b[1],b[2],b[3]));
+
+  // titles
+  ctx.textAlign="center";
   ctx.fillStyle = s.theme.gold2;
-  ctx.font = $("styleMode").value === "modern" ? 'bold 50px Arial' : 'bold 54px serif';
-  ctx.fillText("عيد مبارك", w/2, 120);
-  ctx.shadowBlur = 0;
-  ctx.font = 'bold 28px Arial'; ctx.fillText("Eid Mubarak", w/2, 158);
+  ctx.font = 'bold 38px serif';
+  ctx.fillText("عيد مبارك", w/2, 100);
+  ctx.font = 'bold 24px Arial';
+  ctx.fillText("Eid Mubarak", w/2, 132);
+  ctx.fillStyle = "#f8e8c7";
+  ctx.font = 'bold 18px Arial';
+  ctx.fillText(s.recipient, w/2, 168);
 
-  const nameAlpha = Math.min(1, frame / 12);
-  ctx.fillStyle = `rgba(248,232,199,${nameAlpha})`;
-  ctx.font = 'bold 20px Arial'; ctx.fillText(s.recipient, w/2, 196);
+  // mosque
+  ctx.fillStyle = "rgba(17,33,39,.92)";
+  roundRect(ctx,105,250,330,48,14,true);
+  ctx.fillStyle = "rgba(22,43,51,.98)";
+  roundRect(ctx,228,186,84,68,34,true);
+  [[142,220,18,78],[380,220,18,78],[192,240,18,58],[330,240,18,58]].forEach(b=>roundRect(ctx,b[0],b[1],b[2],b[3],8,true));
 
-  const flicker = 0.88 + 0.12*Math.sin(phase*Math.PI*6);
-  ctx.fillStyle = `rgba(17,33,39,${0.92*flicker})`; roundRect(ctx,130,280,460,58,16,true);
-  ctx.fillStyle = `rgba(22,43,51,${0.98*flicker})`; roundRect(ctx,290,205,140,88,40,true);
-  [[178,240,22,98],[520,240,22,98],[250,265,22,73],[448,265,22,73]].forEach(b=>roundRect(ctx,b[0],b[1],b[2],b[3],9,true));
+  // message box
+  const g2 = ctx.createLinearGradient(0,340,0,580);
+  g2.addColorStop(0, s.theme.paper1);
+  g2.addColorStop(1, s.theme.paper2);
+  ctx.fillStyle = g2;
+  roundRect(ctx,70,340,400,230,18,true);
 
-  const g2 = ctx.createLinearGradient(0,392,0,790);
-  g2.addColorStop(0, s.theme.paper1); g2.addColorStop(1, s.theme.paper2);
-  ctx.fillStyle = g2; roundRect(ctx,86,392,548,356,style.paperRadius,true);
+  ctx.fillStyle = "#996d34";
+  ctx.font = 'bold 10px Arial';
+  ctx.fillText("BLESSING MESSAGE", 270, 362);
 
-  ctx.fillStyle = "#996d34"; ctx.font = 'bold 11px Arial'; ctx.fillText("BLESSING MESSAGE", 360, 418);
-
+  const boxX = 100, boxY = 388, boxW = 340, boxH = 140;
   const items = [];
-  const compact = $("showEnglishAs").value === "compact";
   for(const [code, text] of s.lines){
-    if(code === "ar" || code === "ur" || code === "bn"){
-      items.push({text, font:'{size}px serif', bump:8, maxWidth:470, lineHeight:(sz)=>Math.round(sz*1.17), gap:6});
+    if(code === "ar"){
+      items.push({text, font:'{size}px serif', delta:8, lineHeight:30, gap:4, maxWidth:boxW});
     } else {
-      items.push({text, font:'{size}px Arial', bump: compact ? -2 : 0, maxWidth:470, lineHeight:(sz)=>Math.round(sz*1.26), gap:6});
+      items.push({text, font:'{size}px Arial', delta:0, lineHeight:19, gap:4, maxWidth:boxW});
     }
   }
-  const fitted = fitLines(ctx, items, 240);
-  let y = 448;
+  const fitted = fitLines(ctx, items, boxH, 18, 12, '{size}px Arial');
+  let y = boxY;
   ctx.fillStyle = "#573719";
   for(const item of fitted){
     ctx.font = item.font.replace("{size}", item.size);
     for(const line of item.lines){
-      ctx.fillText(line, w/2, y);
-      y += item.lineHeight(item.size);
+      ctx.fillText(line, 270, y);
+      y += item.lineHeight;
     }
-    y += 2;
+    y += 4;
   }
-
-  ctx.fillStyle = "#7c5120"; ctx.font = 'bold 18px Arial'; ctx.fillText(s.fromName, w/2, 720);
+  ctx.fillStyle = "#7c5120";
+  ctx.font = 'bold 16px Arial';
+  ctx.fillText(s.fromName, 270, 548);
 }
-function saveCurrentPNG(){
-  drawPreview(0,90);
+
+async function generateGif(){
+  if(typeof GIF === "undefined"){
+    $("status").textContent = "GIF library failed to load. Open in Safari/Chrome with internet on.";
+    return;
+  }
+  const frameCount = parseInt($("frames").value, 10);
+  $("generateGifBtn").disabled = true;
+  $("downloadGifBtn").disabled = true;
+  $("status").textContent = "Generating GIF...";
+  const cv = $("previewCanvas");
+  const ctx = cv.getContext("2d");
+  const gif = new GIF({
+    workers: 2,
+    quality: 12,
+    width: cv.width,
+    height: cv.height,
+    workerScript: "https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.worker.js"
+  });
+  for(let i=0;i<frameCount;i++){
+    drawPreview(i, frameCount);
+    gif.addFrame(ctx, {copy:true, delay:110});
+  }
+  gif.on("progress", p => $("status").textContent = "Generating GIF... " + Math.round(p*100) + "%");
+  gif.on("finished", blob => {
+    gifBlob = blob;
+    const url = URL.createObjectURL(blob);
+    $("gifPreview").src = url;
+    $("gifPreview").style.display = "block";
+    $("downloadGifBtn").disabled = false;
+    $("generateGifBtn").disabled = false;
+    $("status").textContent = "GIF ready.";
+    drawPreview(0,1);
+  });
+  gif.render();
+}
+
+function downloadGif(){
+  if(!gifBlob) return;
   const a = document.createElement("a");
-  a.href = $("previewCanvas").toDataURL("image/png");
-  a.download = currentRecipient().replace(/\s+/g,"_") + "_eid_card.png";
+  a.href = URL.createObjectURL(gifBlob);
+  a.download = "eid-card.gif";
   a.click();
 }
-function downloadBlob(blob, filename){
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
-}
-async function exportAnimatedForCurrent(){
-  const canvas = $("previewCanvas");
-  const stream = canvas.captureStream(30);
-  let mime = "";
-  if(MediaRecorder.isTypeSupported("video/webm;codecs=vp9")) mime = "video/webm;codecs=vp9";
-  else if(MediaRecorder.isTypeSupported("video/webm;codecs=vp8")) mime = "video/webm;codecs=vp8";
-  else if(MediaRecorder.isTypeSupported("video/webm")) mime = "video/webm";
-  let recorder;
-  try{ recorder = mime ? new MediaRecorder(stream, {mimeType:mime}) : new MediaRecorder(stream); }
-  catch(e){ $("status").textContent = "Animated export is not supported in this browser."; return null; }
 
-  const chunks = [];
-  recorder.ondataavailable = e => { if(e.data && e.data.size) chunks.push(e.data); };
-  const totalFrames = parseInt($("duration").value, 10) * 30;
-  recorder.start(100);
-  for(let i=0;i<totalFrames;i++){
-    drawPreview(i, totalFrames);
-    await new Promise(r => setTimeout(r, 1000/30));
-  }
-  await new Promise(resolve => { recorder.onstop = resolve; recorder.stop(); });
-  lastBlob = new Blob(chunks, {type: recorder.mimeType || "video/webm"});
-  $("videoPreview").src = URL.createObjectURL(lastBlob);
-  $("videoPreview").style.display = "block";
-  drawPreview(0,90);
-  return lastBlob;
-}
-async function exportAllPNGs(){
-  parseRecipients();
-  $("status").textContent = "Exporting " + recipients.length + " PNGs...";
-  const original = currentRecipientIndex;
-  for(let i=0;i<recipients.length;i++){
-    currentRecipientIndex = i; renderRecipients(); drawPreview(0,90);
-    await new Promise(r=>setTimeout(r,150)); saveCurrentPNG(); await new Promise(r=>setTimeout(r,300));
-  }
-  currentRecipientIndex = original; renderRecipients(); drawPreview(0,90);
-  $("status").textContent = "Finished exporting all PNGs.";
-}
-async function exportAllAnimated(){
-  parseRecipients();
-  $("status").textContent = "Exporting " + recipients.length + " animated files...";
-  const original = currentRecipientIndex;
-  for(let i=0;i<recipients.length;i++){
-    currentRecipientIndex = i; renderRecipients(); drawPreview(0,90);
-    await new Promise(r=>setTimeout(r,150));
-    const blob = await exportAnimatedForCurrent();
-    if(blob){
-      const ext = (blob.type || "").includes("mp4") ? "mp4" : "webm";
-      downloadBlob(blob, currentRecipient().replace(/\s+/g,"_") + "_eid_animated." + ext);
-    }
-    await new Promise(r=>setTimeout(r,350));
-  }
-  currentRecipientIndex = original; renderRecipients(); drawPreview(0,90);
-  $("status").textContent = "Finished exporting all animated files.";
-}
-function switchTab(name){
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + name));
-}
-document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
-$("previewTabBtn").addEventListener("click", ()=>window.scrollTo({top:0, behavior:"smooth"}));
-
-$("loadRecipientsBtn").addEventListener("click", ()=>{ parseRecipients(); drawPreview(0,90); });
-$("currentRecipientSelect").addEventListener("change", e => { currentRecipientIndex = parseInt(e.target.value,10) || 0; renderRecipients(); drawPreview(0,90); });
 $("generateBtn").addEventListener("click", generateMessage);
-$("oneClickPngBtn").addEventListener("click", exportAllPNGs);
-$("oneClickAnimatedBtn").addEventListener("click", exportAllAnimated);
-$("saveCurrentPngBtn").addEventListener("click", saveCurrentPNG);
-$("exportCurrentAnimatedBtn").addEventListener("click", async ()=> {
-  $("status").textContent = "Exporting animated file for " + currentRecipient() + "...";
-  const blob = await exportAnimatedForCurrent();
-  if(blob){
-    const ext = (blob.type || "").includes("mp4") ? "mp4" : "webm";
-    downloadBlob(blob, currentRecipient().replace(/\s+/g,"_") + "_eid_animated." + ext);
-    $("status").textContent = "Finished animated export for " + currentRecipient() + ".";
-  }
-});
-$("bottomGenerateBtn").addEventListener("click", generateMessage);
-$("bottomSaveBtn").addEventListener("click", saveCurrentPNG);
-$("bottomAnimatedBtn").addEventListener("click", async ()=> {
-  const blob = await exportAnimatedForCurrent();
-  if(blob){
-    const ext = (blob.type || "").includes("mp4") ? "mp4" : "webm";
-    downloadBlob(blob, currentRecipient().replace(/\s+/g,"_") + "_eid_animated." + ext);
-  }
-});
-document.querySelectorAll(".presetBtn").forEach(btn => btn.addEventListener("click", ()=>applyPreset(btn.dataset.tone)));
-["fromName","messageMode","customMessage","styleMode","lengthMode","recipientPrefix","tone","showEnglishAs"].forEach(id => $(id).addEventListener("input", ()=>drawPreview(0,90)));
-["theme","duration"].forEach(id => $(id).addEventListener("change", ()=>drawPreview(0,90)));
-document.querySelectorAll(".langBox").forEach(el => el.addEventListener("change", ()=>{ ensureGeneratedFields(); generateMessage(); drawPreview(0,90); }));
+$("useBtn").addEventListener("click", useGenerated);
+$("generateGifBtn").addEventListener("click", generateGif);
+$("downloadGifBtn").addEventListener("click", downloadGif);
+["recipient","fromName","englishMessage","urduMessage","turkishMessage","frenchMessage","spanishMessage"].forEach(id => $(id).addEventListener("input", ()=>drawPreview(0,1)));
+["theme","frames"].forEach(id => $(id).addEventListener("change", ()=>drawPreview(0,1)));
+document.querySelectorAll(".langBox").forEach(el => el.addEventListener("change", ()=>drawPreview(0,1)));
 
-parseRecipients();
-ensureGeneratedFields();
 generateMessage();
-drawPreview(0,90);
+drawPreview(0,1);
 </script>
 </body>
 </html>

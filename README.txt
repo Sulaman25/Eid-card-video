@@ -1,12 +1,18 @@
-Eid Card Studio App UI + Animation
+Eid GIF Generator Lite
 
-Merged version:
-- app-style mobile UI
-- animated export for current recipient
-- export all animated files
-- export all PNGs
-- premium preview retained
+What's fixed:
+- faster GIF rendering
+- working generated messages
+- message text stays inside rectangle
+- smaller canvas for mobile speed
 
-Notes:
-- Animated export uses browser-supported video format, often WebM
-- PNG remains static
+How to use:
+1. Open index.html in Safari or Chrome with internet on
+2. Tap Generate Message
+3. Tap Use Generated
+4. Tap Generate GIF
+5. Tap Download GIF
+
+Tips:
+- Use GIF speed = Fast for the quickest result
+- Keep fewer languages selected if you want larger text
