@@ -264,7 +264,7 @@ Fatima</textarea>
           </div>
           <div class="row" style="margin-top:10px">
             <button class="btn primary" id="generateBtn">Generate Message</button>
-            <button class="btn secondary" id="exportCurrentAnimatedBtn">Export Current Animated</button>
+            <button class="btn secondary" id="exportCurrentAnimatedBtn">Prepare Current Animated</button>
           </div>
           <div class="chips" style="margin-top:10px">
             <label class="chip"><input type="checkbox" id="autoGenerateOnSwipe" checked> Auto-generate on swipe</label>
@@ -282,11 +282,12 @@ Fatima</textarea>
       <div class="pane" id="pane-export">
         <div class="section">
           <h3>Exports</h3>
-          <div class="sub">PNG is static. Animated export uses browser video format, often WebM.</div>
+          <div class="sub">PNG is static. Animated export uses browser video format, often WebM. Animated now prepares first, then you tap Download.</div>
           <div class="row" style="margin-top:10px">
             <button class="btn primary" id="oneClickPngBtn">Export All PNGs</button>
             <button class="btn secondary" id="oneClickAnimatedBtn">Export All Animated</button>
             <button class="btn secondary" id="saveCurrentPngBtn">Save Current PNG</button>
+            <button class="btn ghost" id="downloadPreparedAnimatedBtn">Download Prepared Animated</button>
           </div>
         </div>
       </div>
@@ -314,7 +315,7 @@ Fatima</textarea>
   <div class="inner">
     <button class="btn primary" id="bottomGenerateBtn">Generate</button>
     <button class="btn secondary" id="bottomSaveBtn">Save PNG</button>
-    <button class="btn secondary" id="bottomAnimatedBtn">Animated</button>
+    <button class="btn secondary" id="bottomAnimatedBtn">Prepare Animated</button>
   </div>
 </div>
 
@@ -667,8 +668,20 @@ function downloadBlob(blob, filename){
   a.download = filename;
   a.click();
 }
+
+function downloadPreparedAnimated(){
+  if(exportsTemporarilyBlocked()) return;
+  if(!lastBlob){
+    $("status").textContent = "Prepare an animated file first.";
+    return;
+  }
+  const ext = (lastBlob.type || "").includes("mp4") ? "mp4" : "webm";
+  downloadBlob(lastBlob, currentRecipient().replace(/\s+/g,"_") + "_eid_animated." + ext);
+  $("status").textContent = "Downloaded prepared animated file for " + currentRecipient() + ".";
+}
 async function exportAnimatedForCurrent(){
   if(exportsTemporarilyBlocked()) return null;
+  $("status").textContent = "Preparing animated file for " + currentRecipient() + "...";
   const canvas = $("previewCanvas");
   const stream = canvas.captureStream(30);
   let mime = "";
@@ -691,6 +704,7 @@ async function exportAnimatedForCurrent(){
   lastBlob = new Blob(chunks, {type: recorder.mimeType || "video/webm"});
   $("videoPreview").src = URL.createObjectURL(lastBlob);
   $("videoPreview").style.display = "none";
+  $("status").textContent = "Animated file prepared for " + currentRecipient() + ". Tap Download Prepared Animated.";
   drawPreview(0,90);
   return lastBlob;
 }
@@ -738,23 +752,14 @@ $("generateBtn").addEventListener("click", generateMessage);
 $("oneClickPngBtn").addEventListener("click", exportAllPNGs);
 $("oneClickAnimatedBtn").addEventListener("click", () => { if(!exportsTemporarilyBlocked()) exportAllAnimated(); });
 $("saveCurrentPngBtn").addEventListener("click", saveCurrentPNG);
+$("downloadPreparedAnimatedBtn").addEventListener("click", downloadPreparedAnimated);
 $("exportCurrentAnimatedBtn").addEventListener("click", async ()=> { if(exportsTemporarilyBlocked()) return;
-  $("status").textContent = "Exporting animated file for " + currentRecipient() + "...";
-  const blob = await exportAnimatedForCurrent();
-  if(blob){
-    const ext = (blob.type || "").includes("mp4") ? "mp4" : "webm";
-    downloadBlob(blob, currentRecipient().replace(/\s+/g,"_") + "_eid_animated." + ext);
-    $("status").textContent = "Finished animated export for " + currentRecipient() + ".";
-  }
+  await exportAnimatedForCurrent();
 });
 $("bottomGenerateBtn").addEventListener("click", generateMessage);
 $("bottomSaveBtn").addEventListener("click", saveCurrentPNG);
 $("bottomAnimatedBtn").addEventListener("click", async ()=> { if(exportsTemporarilyBlocked()) return;
-  const blob = await exportAnimatedForCurrent();
-  if(blob){
-    const ext = (blob.type || "").includes("mp4") ? "mp4" : "webm";
-    downloadBlob(blob, currentRecipient().replace(/\s+/g,"_") + "_eid_animated." + ext);
-  }
+  await exportAnimatedForCurrent();
 });
 document.querySelectorAll(".presetBtn").forEach(btn => btn.addEventListener("click", ()=>applyPreset(btn.dataset.tone)));
 ["fromName","messageMode","customMessage","styleMode","lengthMode","recipientPrefix","tone","showEnglishAs"].forEach(id => $(id).addEventListener("input", ()=>drawPreview(0,90)));

@@ -1,10 +1,12 @@
-Eid Card Studio permanent swipe/export fix
+Eid Card Studio no-auto-download animated fix
 
-Fixes:
-- swiping after tapping Animated should no longer trigger accidental downloads
-- global click/touch suppression after swipe gesture
-- animated export buttons ignore events right after swipe
-- black video preview area stays hidden after export so it does not come back
+What changed:
+- Animated no longer auto-downloads immediately
+- Animated now PREPARES the file first
+- New button: Download Prepared Animated
+- Swiping/arrows should no longer trigger downloads because download is now separate and explicit
 
-Update:
-Replace your repo root index.html with this one and refresh the site.
+How to use:
+1. Tap Prepare Current Animated (or bottom Prepare Animated)
+2. Wait for 'Animated file prepared...'
+3. Tap Download Prepared Animated
