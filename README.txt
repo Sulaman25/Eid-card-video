@@ -1,11 +1,12 @@
-Eid Card Studio App UI + Animation + Swipe UX
+Eid Card Studio Swipe Animation + Auto Generate
 
 Added:
-- swipe left/right on preview to switch recipients
-- also supports mouse drag and keyboard arrows
-- keeps app UI, PNG export, and animated export
+- left/right arrow buttons around current recipient
+- swipe transition animation
+- auto-generate new message when swiping to next/previous recipient
+- toggle to disable auto-generate on swipe if desired
 
-How to use:
-1. Load recipients
-2. Swipe on the preview card to move between them
-3. Export current card or export all
+Use:
+1. Replace your repo root index.html with this one
+2. Refresh your site
+3. Swipe or tap arrows to move between recipients

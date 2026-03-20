@@ -47,7 +47,7 @@
       border-radius:28px;padding:12px;background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
       border:1px solid rgba(232,198,122,.12)
     }
-    canvas, video{width:100%;height:auto;border-radius:22px;display:block;background:#0c1720;touch-action: none;}
+    canvas, video{width:100%;height:auto;border-radius:22px;display:block;background:#0c1720}
     #videoPreview{display:none;margin-top:12px}
     .tabs{display:flex;gap:8px;overflow:auto;padding-bottom:2px}
     .tab{
@@ -266,6 +266,9 @@ Fatima</textarea>
             <button class="btn primary" id="generateBtn">Generate Message</button>
             <button class="btn secondary" id="exportCurrentAnimatedBtn">Export Current Animated</button>
           </div>
+          <div class="chips" style="margin-top:10px">
+            <label class="chip"><input type="checkbox" id="autoGenerateOnSwipe" checked> Auto-generate on swipe</label>
+          </div>
           <div id="generatedFieldsContainer"></div>
           <div class="status" id="status"></div>
         </div>
@@ -295,8 +298,12 @@ Fatima</textarea>
         <video id="videoPreview" controls playsinline></video>
       </div>
       <div class="pillStat">
-        <span>Current recipient</span>
-        <strong id="currentRecipientLabel">Ahmed</strong>
+        <button class="btn secondary" id="prevRecipientBtn" style="padding:8px 12px">←</button>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+          <span>Current recipient</span>
+          <strong id="currentRecipientLabel">Ahmed</strong>
+        </div>
+        <button class="btn secondary" id="nextRecipientBtn" style="padding:8px 12px">→</button>
       </div>
       <div class="swipeHint">Swipe left/right on the preview card to move between recipients.</div>
     </div>
@@ -347,24 +354,50 @@ let lastBlob = null;
 let touchStartX = null;
 let touchStartY = null;
 let isSwitchingRecipient = false;
+let swipeSlideOffset = 0;
+let swipeDirection = 0;
 
-function goToRecipient(index){
-  if(!recipients.length) return;
-  currentRecipientIndex = (index + recipients.length) % recipients.length;
-  renderRecipients();
-  drawPreview(0,90);
+function animateRecipientChange(direction, nextIndex){
+  isSwitchingRecipient = true;
+  swipeDirection = direction;
+  let frame = 0;
+  const total = 10;
+  function outAnim(){
+    frame++;
+    swipeSlideOffset = direction * (frame/total) * 90;
+    drawPreview(0,90);
+    if(frame < total){
+      requestAnimationFrame(outAnim);
+    } else {
+      currentRecipientIndex = (nextIndex + recipients.length) % recipients.length;
+      renderRecipients();
+      let frameIn = 0;
+      function inAnim(){
+        frameIn++;
+        swipeSlideOffset = direction * (1 - frameIn/total) * -90;
+        drawPreview(0,90);
+        if(frameIn < total){
+          requestAnimationFrame(inAnim);
+        } else {
+          swipeSlideOffset = 0;
+          swipeDirection = 0;
+          isSwitchingRecipient = false;
+          autoGenerateForCurrentRecipient();
+          drawPreview(0,90);
+        }
+      }
+      requestAnimationFrame(inAnim);
+    }
+  }
+  requestAnimationFrame(outAnim);
 }
 function nextRecipient(){
   if(isSwitchingRecipient || recipients.length < 2) return;
-  isSwitchingRecipient = true;
-  goToRecipient(currentRecipientIndex + 1);
-  setTimeout(()=>{ isSwitchingRecipient = false; }, 180);
+  animateRecipientChange(-1, currentRecipientIndex + 1);
 }
 function prevRecipient(){
   if(isSwitchingRecipient || recipients.length < 2) return;
-  isSwitchingRecipient = true;
-  goToRecipient(currentRecipientIndex - 1);
-  setTimeout(()=>{ isSwitchingRecipient = false; }, 180);
+  animateRecipientChange(1, currentRecipientIndex - 1);
 }
 
 
@@ -444,6 +477,15 @@ function generateMessage(){
   $("status").textContent = "Design ready for " + recipients.length + " recipient(s).";
   drawPreview(0,90);
 }
+function autoGenerateForCurrentRecipient(){
+  if(!$("autoGenerateOnSwipe")) return;
+  if(!$("autoGenerateOnSwipe").checked) return;
+  for(const code of selectedLangs()){
+    const el = $("generated_" + code);
+    if(el) el.textContent = buildMessage(code);
+  }
+  $("status").textContent = "New message generated for " + currentRecipient() + ".";
+}
 function getGeneratedMap(){
   const out = {};
   for(const code of ["ar","en","ur","tr","fr","es","id","ms","bn"]){
@@ -519,6 +561,8 @@ function drawPreview(frame, total){
   const w = cv.width, h = cv.height;
   const phase = frame / Math.max(1,total);
   const style = styleConfig();
+  ctx.save();
+  ctx.translate(swipeSlideOffset, 0);
 
   const grad = ctx.createLinearGradient(0,0,0,h);
   grad.addColorStop(0, s.theme.bg1); grad.addColorStop(1, s.theme.bg2);
@@ -601,6 +645,7 @@ function drawPreview(frame, total){
   }
 
   ctx.fillStyle = "#7c5120"; ctx.font = 'bold 18px Arial'; ctx.fillText(s.fromName, w/2, 720);
+  ctx.restore();
 }
 function saveCurrentPNG(){
   drawPreview(0,90);
@@ -675,6 +720,8 @@ function switchTab(name){
 }
 document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
 $("previewTabBtn").addEventListener("click", ()=>window.scrollTo({top:0, behavior:"smooth"}));
+$("prevRecipientBtn").addEventListener("click", prevRecipient);
+$("nextRecipientBtn").addEventListener("click", nextRecipient);
 
 $("loadRecipientsBtn").addEventListener("click", ()=>{ parseRecipients(); drawPreview(0,90); });
 $("currentRecipientSelect").addEventListener("change", e => { currentRecipientIndex = parseInt(e.target.value,10) || 0; renderRecipients(); drawPreview(0,90); });
