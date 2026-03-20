@@ -295,7 +295,7 @@ Fatima</textarea>
 
     <div class="previewWrap">
       <div class="section canvasShell">
-        <canvas id="previewCanvas" width="720" height="980"></canvas>
+        <canvas id="previewCanvas" width="480" height="700"></canvas>
         <video id="videoPreview" controls playsinline></video>
       </div>
       <div class="pillStat">
@@ -385,7 +385,9 @@ function animateRecipientChange(direction, nextIndex){
   // Performance-first on iPhone: switch instantly instead of sliding
   currentRecipientIndex = (nextIndex + recipients.length) % recipients.length;
   renderRecipients();
-  drawPreview(0,90);
+  requestAnimationFrame(() => {
+    drawPreview(0,90);
+  });
 }
 
 function nextRecipient(){
@@ -574,7 +576,7 @@ function drawPreview(frame, total){
     const x=(i*71)%w, y=(i*43)%260, a=0.3 + 0.5*Math.sin(phase*Math.PI*2+i);
     ctx.fillStyle=`rgba(255,241,207,${Math.max(0.15,a)})`; ctx.fillRect(x,y,2,2);
   }
-  for(let i=0;i<style.particles;i++){
+  for(let i=0;i<4;i++){
     const x=(i*29 + frame*7)%w, y=h-((i*37 + frame*9)%(h+70));
     ctx.fillStyle="rgba(255,213,120,0.72)";
     ctx.beginPath(); ctx.arc(x,y,2+(i%2),0,Math.PI*2); ctx.fill();
@@ -583,7 +585,7 @@ function drawPreview(frame, total){
   ctx.fillStyle = "#ffd77e"; ctx.beginPath(); ctx.arc(112,112,56,0,Math.PI*2); ctx.fill();
   ctx.fillStyle = s.theme.cardA; ctx.beginPath(); ctx.arc(144,122,48,0,Math.PI*2); ctx.fill();
 
-  if(style.lanterns){
+  if(false){
     for(let i=0;i<5;i++){
       const lx = 52 + i*130 + Math.sin(phase*Math.PI*2+i)*7;
       const ly = 24 + ((frame*7 + i*55)%(h+90)) - 55;
