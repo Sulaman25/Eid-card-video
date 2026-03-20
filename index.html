@@ -359,51 +359,72 @@ let swipeSlideOffset = 0;
 let swipeDirection = 0;
 let suppressClicksUntil = 0;
 let didSwipeGesture = false;
+let isAnimatingPreview = false;
+let activeAnimationFrame = null;
 
 function exportsTemporarilyBlocked(){
   return Date.now() < suppressClicksUntil;
 }
 
+function cancelActivePreviewAnimation(){
+  if(activeAnimationFrame){
+    cancelAnimationFrame(activeAnimationFrame);
+    activeAnimationFrame = null;
+  }
+  isAnimatingPreview = false;
+  swipeSlideOffset = 0;
+  swipeDirection = 0;
+}
+
 function animateRecipientChange(direction, nextIndex){
+  if(recipients.length < 2) return;
+  cancelActivePreviewAnimation();
   isSwitchingRecipient = true;
+  isAnimatingPreview = true;
   swipeDirection = direction;
-  let frame = 0;
-  const total = 4;
-  function outAnim(){
-    frame++;
-    swipeSlideOffset = direction * (frame/total) * 90;
-    drawPreview(0,90);
-    if(frame < total){
-      requestAnimationFrame(outAnim);
+
+  const start = performance.now();
+  const duration = 140;
+  const fromIndex = currentRecipientIndex;
+  const targetIndex = (nextIndex + recipients.length) % recipients.length;
+
+  function frame(now){
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+
+    if(t < 0.5){
+      swipeSlideOffset = direction * eased * 110;
     } else {
-      currentRecipientIndex = (nextIndex + recipients.length) % recipients.length;
-      renderRecipients();
-      let frameIn = 0;
-      function inAnim(){
-        frameIn++;
-        swipeSlideOffset = direction * (1 - frameIn/total) * -90;
-        drawPreview(0,90);
-        if(frameIn < total){
-          requestAnimationFrame(inAnim);
-        } else {
-          swipeSlideOffset = 0;
-          swipeDirection = 0;
-          isSwitchingRecipient = false;
-          autoGenerateForCurrentRecipient();
-          drawPreview(0,90);
-        }
+      if(currentRecipientIndex !== targetIndex){
+        currentRecipientIndex = targetIndex;
+        renderRecipients();
       }
-      requestAnimationFrame(inAnim);
+      swipeSlideOffset = direction * (1 - eased) * -110;
+    }
+
+    drawPreview(0,90);
+
+    if(t < 1){
+      activeAnimationFrame = requestAnimationFrame(frame);
+    } else {
+      swipeSlideOffset = 0;
+      swipeDirection = 0;
+      isSwitchingRecipient = false;
+      isAnimatingPreview = false;
+      activeAnimationFrame = null;
+      drawPreview(0,90);
     }
   }
-  requestAnimationFrame(outAnim);
+
+  activeAnimationFrame = requestAnimationFrame(frame);
 }
+
 function nextRecipient(){
-  if(isSwitchingRecipient || recipients.length < 2) return;
+  if(isSwitchingRecipient || isAnimatingPreview || recipients.length < 2) return;
   animateRecipientChange(-1, currentRecipientIndex + 1);
 }
 function prevRecipient(){
-  if(isSwitchingRecipient || recipients.length < 2) return;
+  if(isSwitchingRecipient || isAnimatingPreview || recipients.length < 2) return;
   animateRecipientChange(1, currentRecipientIndex - 1);
 }
 
@@ -492,6 +513,7 @@ function autoGenerateForCurrentRecipient(){
     if(el) el.textContent = buildMessage(code);
   }
   $("status").textContent = "New message generated for " + currentRecipient() + ".";
+  drawPreview(0,90);
 }
 function getGeneratedMap(){
   const out = {};
@@ -770,6 +792,7 @@ document.querySelectorAll(".langBox").forEach(el => el.addEventListener("change"
 const previewCanvas = $("previewCanvas");
 
 function startSwipe(x, y){
+  if(isAnimatingPreview || isSwitchingRecipient) return;
   touchStartX = x;
   touchStartY = y;
   didSwipeGesture = false;

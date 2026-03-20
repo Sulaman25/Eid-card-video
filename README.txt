@@ -1,10 +1,10 @@
-Eid Card Studio mobile performance tuned
+Eid Card Studio swipe animation fixed
 
-Changes:
-- auto-generate on swipe is OFF by default
-- swipe transition frames reduced for faster response
-- particles reduced across styles for smoother iPhone performance
-- keeps the no-auto-download animated workflow
+Fixes:
+- recipient switch now completes as one smooth atomic animation
+- no more mid-animation recipient jump/stall
+- preview animation no longer gets interrupted during swipe transition
+- swipe ignores extra gestures while animation is running
 
 Update:
 Replace your repo root index.html with this one and refresh the site.
