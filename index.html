@@ -295,7 +295,7 @@ Fatima</textarea>
 
     <div class="previewWrap">
       <div class="section canvasShell">
-        <canvas id="previewCanvas" width="480" height="700"></canvas>
+        <canvas id="previewCanvas" width="720" height="980"></canvas>
         <video id="videoPreview" controls playsinline></video>
       </div>
       <div class="pillStat">
@@ -351,6 +351,8 @@ const $ = id => document.getElementById(id);
 let recipients = [];
 let currentRecipientIndex = 0;
 let lastBlob = null;
+let backgroundCacheCanvas = null;
+let backgroundCacheKey = '';
 
 let touchStartX = null;
 let touchStartY = null;
@@ -385,9 +387,7 @@ function animateRecipientChange(direction, nextIndex){
   // Performance-first on iPhone: switch instantly instead of sliding
   currentRecipientIndex = (nextIndex + recipients.length) % recipients.length;
   renderRecipients();
-  requestAnimationFrame(() => {
-    drawPreview(0,90);
-  });
+  drawPreview(0,90);
 }
 
 function nextRecipient(){
@@ -554,15 +554,26 @@ function roundRect(ctx, x, y, w, h, r, fill){
   ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
   if(fill) ctx.fill();
 }
-function drawPreview(frame, total){
+
+function buildBackgroundCacheKey(){
+  return JSON.stringify({
+    theme: $("theme").value,
+    styleMode: $("styleMode").value,
+    width: $("previewCanvas").width,
+    height: $("previewCanvas").height
+  });
+}
+
+function renderStaticBackgroundToCache(){
   const cv = $("previewCanvas");
-  const ctx = cv.getContext("2d");
-  const s = state();
   const w = cv.width, h = cv.height;
-  const phase = frame / Math.max(1,total);
+  const s = state();
   const style = styleConfig();
-  ctx.save();
-  ctx.translate(swipeSlideOffset, 0);
+
+  backgroundCacheCanvas = document.createElement("canvas");
+  backgroundCacheCanvas.width = w;
+  backgroundCacheCanvas.height = h;
+  const ctx = backgroundCacheCanvas.getContext("2d");
 
   const grad = ctx.createLinearGradient(0,0,0,h);
   grad.addColorStop(0, s.theme.bg1); grad.addColorStop(1, s.theme.bg2);
@@ -572,20 +583,64 @@ function drawPreview(frame, total){
   glow.addColorStop(0,`rgba(255,220,140,${style.moonGlow})`); glow.addColorStop(1,"rgba(255,220,140,0)");
   ctx.fillStyle = glow; ctx.fillRect(0,0,w,h);
 
+  // Static stars
   for(let i=0;i<58;i++){
-    const x=(i*71)%w, y=(i*43)%260, a=0.3 + 0.5*Math.sin(phase*Math.PI*2+i);
+    const x=(i*71)%w, y=(i*43)%260, a=0.3 + 0.5*Math.sin(i);
     ctx.fillStyle=`rgba(255,241,207,${Math.max(0.15,a)})`; ctx.fillRect(x,y,2,2);
-  }
-  for(let i=0;i<4;i++){
-    const x=(i*29 + frame*7)%w, y=h-((i*37 + frame*9)%(h+70));
-    ctx.fillStyle="rgba(255,213,120,0.72)";
-    ctx.beginPath(); ctx.arc(x,y,2+(i%2),0,Math.PI*2); ctx.fill();
   }
 
   ctx.fillStyle = "#ffd77e"; ctx.beginPath(); ctx.arc(112,112,56,0,Math.PI*2); ctx.fill();
   ctx.fillStyle = s.theme.cardA; ctx.beginPath(); ctx.arc(144,122,48,0,Math.PI*2); ctx.fill();
 
-  if(false){
+  if(style.orn){
+    ctx.strokeStyle=`rgba(240,205,130,${style.goldAlpha})`; ctx.lineWidth=2;
+    [[14,14,92,92],[w-106,14,92,92],[14,h-106,92,92],[w-106,h-106,92,92]].forEach(b=>ctx.strokeRect(b[0],b[1],b[2],b[3]));
+  }
+
+  // Static mosque silhouette
+  ctx.fillStyle = `rgba(17,33,39,0.92)`; roundRect(ctx,130,280,460,58,16,true);
+  ctx.fillStyle = `rgba(22,43,51,0.98)`; roundRect(ctx,290,205,140,88,40,true);
+  [[178,240,22,98],[520,240,22,98],[250,265,22,73],[448,265,22,73]].forEach(b=>roundRect(ctx,b[0],b[1],b[2],b[3],9,true));
+
+  const g2 = ctx.createLinearGradient(0,392,0,790);
+  g2.addColorStop(0, s.theme.paper1); g2.addColorStop(1, s.theme.paper2);
+  ctx.fillStyle = g2; roundRect(ctx,86,392,548,356,style.paperRadius,true);
+
+  ctx.fillStyle = "#996d34"; ctx.font = 'bold 11px Arial'; ctx.textAlign = "center";
+  ctx.fillText("BLESSING MESSAGE", 360, 418);
+
+  backgroundCacheKey = buildBackgroundCacheKey();
+}
+
+function ensureBackgroundCache(){
+  const key = buildBackgroundCacheKey();
+  if(!backgroundCacheCanvas || backgroundCacheKey !== key){
+    renderStaticBackgroundToCache();
+  }
+}
+
+function drawPreview(frame, total){
+  const cv = $("previewCanvas");
+  const ctx = cv.getContext("2d");
+  const s = state();
+  const w = cv.width, h = cv.height;
+  const phase = frame / Math.max(1,total);
+  const style = styleConfig();
+
+  ensureBackgroundCache();
+  ctx.clearRect(0,0,w,h);
+  ctx.save();
+  ctx.translate(swipeSlideOffset, 0);
+  ctx.drawImage(backgroundCacheCanvas, 0, 0);
+
+  // Lightweight animated overlays only
+  for(let i=0;i<style.particles;i++){
+    const x=(i*29 + frame*7)%w, y=h-((i*37 + frame*9)%(h+70));
+    ctx.fillStyle="rgba(255,213,120,0.72)";
+    ctx.beginPath(); ctx.arc(x,y,2+(i%2),0,Math.PI*2); ctx.fill();
+  }
+
+  if(style.lanterns){
     for(let i=0;i<5;i++){
       const lx = 52 + i*130 + Math.sin(phase*Math.PI*2+i)*7;
       const ly = 24 + ((frame*7 + i*55)%(h+90)) - 55;
@@ -593,10 +648,6 @@ function drawPreview(frame, total){
       ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(lx+8,ly); ctx.lineTo(lx+8,ly+8); ctx.stroke();
       ctx.fillStyle="rgba(255,190,80,.34)"; roundRect(ctx,lx,ly+8,16,24,5,true);
     }
-  }
-  if(style.orn){
-    ctx.strokeStyle=`rgba(240,205,130,${style.goldAlpha})`; ctx.lineWidth=2;
-    [[14,14,92,92],[w-106,14,92,92],[14,h-106,92,92],[w-106,h-106,92,92]].forEach(b=>ctx.strokeRect(b[0],b[1],b[2],b[3]));
   }
 
   ctx.textAlign = "center";
@@ -608,23 +659,11 @@ function drawPreview(frame, total){
   ctx.shadowBlur = 0;
   ctx.font = 'bold 28px Arial'; ctx.fillText("Eid Mubarak", w/2, 158);
 
-  const nameAlpha = Math.min(1, frame / 12);
-  ctx.fillStyle = `rgba(248,232,199,${nameAlpha})`;
+  ctx.fillStyle = "rgba(248,232,199,1)";
   ctx.font = 'bold 20px Arial'; ctx.fillText(s.recipient, w/2, 196);
 
-  const flicker = 0.88 + 0.12*Math.sin(phase*Math.PI*6);
-  ctx.fillStyle = `rgba(17,33,39,${0.92*flicker})`; roundRect(ctx,130,280,460,58,16,true);
-  ctx.fillStyle = `rgba(22,43,51,${0.98*flicker})`; roundRect(ctx,290,205,140,88,40,true);
-  [[178,240,22,98],[520,240,22,98],[250,265,22,73],[448,265,22,73]].forEach(b=>roundRect(ctx,b[0],b[1],b[2],b[3],9,true));
-
-  const g2 = ctx.createLinearGradient(0,392,0,790);
-  g2.addColorStop(0, s.theme.paper1); g2.addColorStop(1, s.theme.paper2);
-  ctx.fillStyle = g2; roundRect(ctx,86,392,548,356,style.paperRadius,true);
-
-  ctx.fillStyle = "#996d34"; ctx.font = 'bold 11px Arial'; ctx.fillText("BLESSING MESSAGE", 360, 418);
-
-  const items = [];
   const compact = $("showEnglishAs").value === "compact";
+  const items = [];
   for(const [code, text] of s.lines){
     if(code === "ar" || code === "ur" || code === "bn"){
       items.push({text, font:'{size}px serif', bump:8, maxWidth:470, lineHeight:(sz)=>Math.round(sz*1.17), gap:6});
@@ -756,7 +795,7 @@ $("bottomAnimatedBtn").addEventListener("click", async ()=> { if(exportsTemporar
 });
 document.querySelectorAll(".presetBtn").forEach(btn => btn.addEventListener("click", ()=>applyPreset(btn.dataset.tone)));
 ["fromName","messageMode","customMessage","styleMode","lengthMode","recipientPrefix","tone","showEnglishAs"].forEach(id => $(id).addEventListener("input", ()=>drawPreview(0,90)));
-["theme","duration"].forEach(id => $(id).addEventListener("change", ()=>drawPreview(0,90)));
+["theme","duration","styleMode"].forEach(id => $(id).addEventListener("change", ()=>{ backgroundCacheCanvas = null; drawPreview(0,90); }));
 document.querySelectorAll(".langBox").forEach(el => el.addEventListener("change", ()=>{ ensureGeneratedFields(); generateMessage(); drawPreview(0,90); }));
 
 
