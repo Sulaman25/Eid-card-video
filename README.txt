@@ -1,12 +1,10 @@
-Eid Card Studio no-auto-download animated fix
+Eid Card Studio mobile performance tuned
 
-What changed:
-- Animated no longer auto-downloads immediately
-- Animated now PREPARES the file first
-- New button: Download Prepared Animated
-- Swiping/arrows should no longer trigger downloads because download is now separate and explicit
+Changes:
+- auto-generate on swipe is OFF by default
+- swipe transition frames reduced for faster response
+- particles reduced across styles for smoother iPhone performance
+- keeps the no-auto-download animated workflow
 
-How to use:
-1. Tap Prepare Current Animated (or bottom Prepare Animated)
-2. Wait for 'Animated file prepared...'
-3. Tap Download Prepared Animated
+Update:
+Replace your repo root index.html with this one and refresh the site.

@@ -267,7 +267,7 @@ Fatima</textarea>
             <button class="btn secondary" id="exportCurrentAnimatedBtn">Prepare Current Animated</button>
           </div>
           <div class="chips" style="margin-top:10px">
-            <label class="chip"><input type="checkbox" id="autoGenerateOnSwipe" checked> Auto-generate on swipe</label>
+            <label class="chip"><input type="checkbox" id="autoGenerateOnSwipe"> Auto-generate on swipe</label>
           </div>
           <div id="generatedFieldsContainer"></div>
           <div class="status" id="status"></div>
@@ -306,7 +306,7 @@ Fatima</textarea>
         </div>
         <button class="btn secondary" id="nextRecipientBtn" style="padding:8px 12px">→</button>
       </div>
-      <div class="swipeHint">Swipe left/right on the preview card to move between recipients.</div>
+      <div class="swipeHint">Swipe left/right on the preview card to move between recipients. Performance tuned for smoother iPhone swiping.</div>
     </div>
   </div>
 </div>
@@ -368,7 +368,7 @@ function animateRecipientChange(direction, nextIndex){
   isSwitchingRecipient = true;
   swipeDirection = direction;
   let frame = 0;
-  const total = 10;
+  const total = 4;
   function outAnim(){
     frame++;
     swipeSlideOffset = direction * (frame/total) * 90;
@@ -513,10 +513,10 @@ function resolveText(lang){
 function applyPreset(tone){ $("tone").value = tone; generateMessage(); }
 function styleConfig(){
   const m = $("styleMode").value;
-  if(m === "minimal") return {orn:false, lanterns:false, particles:8, moonGlow:.14, paperRadius:14, goldAlpha:.18};
-  if(m === "modern") return {orn:true, lanterns:false, particles:16, moonGlow:.18, paperRadius:20, goldAlpha:.22};
-  if(m === "classic") return {orn:true, lanterns:true, particles:18, moonGlow:.2, paperRadius:18, goldAlpha:.3};
-  return {orn:true, lanterns:true, particles:26, moonGlow:.26, paperRadius:20, goldAlpha:.35};
+  if(m === "minimal") return {orn:false, lanterns:false, particles:4, moonGlow:.12, paperRadius:14, goldAlpha:.16};
+  if(m === "modern") return {orn:true, lanterns:false, particles:8, moonGlow:.16, paperRadius:20, goldAlpha:.20};
+  if(m === "classic") return {orn:true, lanterns:true, particles:10, moonGlow:.18, paperRadius:18, goldAlpha:.26};
+  return {orn:true, lanterns:true, particles:12, moonGlow:.22, paperRadius:20, goldAlpha:.30};
 }
 function state(){
   const theme = THEMES[$("theme").value];
