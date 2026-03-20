@@ -187,14 +187,14 @@
       </div>
 
       <div class="section">
-        <h3>Single Custom Message Field</h3>
+        <h3>Single Custom Personal Note</h3>
         <div class="grid2">
           <div>
             <label for="messageMode">Message mode</label>
             <select id="messageMode">
               <option value="generated" selected>Use generated messages</option>
-              <option value="custom">Use one custom message for all selected languages</option>
-              <option value="mixed">Use custom if filled, otherwise generated</option>
+              <option value="custom">Use one personal note for all selected languages</option>
+              <option value="mixed">Add one personal note under generated messages</option>
             </select>
           </div>
           <div>
@@ -205,9 +205,9 @@
             </select>
           </div>
         </div>
-        <label for="customMessage" style="margin-top:10px">Custom message</label>
-        <textarea id="customMessage" placeholder="Type one custom message here. It will be shown for every language you selected when using custom mode."></textarea>
-        <div class="hint" style="margin-top:8px">This field is intentionally shared. If you pick custom mode, the same custom text is used for all selected languages.</div>
+        <label for="customMessage" style="margin-top:10px">Personal note</label>
+        <textarea id="customMessage" placeholder="Paste one personal note here. In custom mode, this single note is used for all selected languages. In mixed mode, it is added below the generated messages."></textarea>
+        <div class="hint" style="margin-top:8px">No separate custom boxes per language anymore.</div>
       </div>
 
       <div class="section">
@@ -328,30 +328,31 @@ function generateMessage(){
   drawPreview(0,90);
 }
 
-function resolveText(lang){
-  const mode = $("messageMode").value;
-  const custom = $("customMessage").value.trim();
+function getGeneratedMap(){
   const generated = {
     ar: $("generatedArabic").textContent,
     en: $("generatedEnglish").textContent,
     ur: $("generatedUrdu").textContent
   };
-  if(lang === "tr") generated.tr = (($("generatedOther").innerText.match(/Turkish: ([\s\S]*?)(?:\n\n|$)/)||[])[1]||"");
-  if(lang === "fr") generated.fr = (($("generatedOther").innerText.match(/French: ([\s\S]*?)(?:\n\n|$)/)||[])[1]||"");
-  if(lang === "es") generated.es = (($("generatedOther").innerText.match(/Spanish: ([\s\S]*?)(?:\n\n|$)/)||[])[1]||"");
-  if(lang === "id") generated.id = (($("generatedOther").innerText.match(/Indonesian: ([\s\S]*?)(?:\n\n|$)/)||[])[1]||"");
-  if(lang === "ms") generated.ms = (($("generatedOther").innerText.match(/Malay: ([\s\S]*?)(?:\n\n|$)/)||[])[1]||"");
-  if(lang === "bn") generated.bn = (($("generatedOther").innerText.match(/Bengali: ([\s\S]*?)(?:\n\n|$)/)||[])[1]||"");
-
-  if(mode === "generated") return generated[lang] || "";
-  if(mode === "custom") return custom || generated[lang] || "";
-  return custom || generated[lang] || "";
+  const otherText = $("generatedOther").innerText || "";
+  const extract = (label) => ((otherText.match(new RegExp(label + ": ([\s\S]*?)(?:\n\n|$)"))||[])[1]||"");
+  generated.tr = extract("Turkish");
+  generated.fr = extract("French");
+  generated.es = extract("Spanish");
+  generated.id = extract("Indonesian");
+  generated.ms = extract("Malay");
+  generated.bn = extract("Bengali");
+  return generated;
 }
 
-function useGenerated(){
-  $("messageMode").value = "generated";
-  $("status").textContent = "Card is now using the generated messages directly.";
-  drawPreview(0,90);
+function resolveText(lang){
+  const mode = $("messageMode").value;
+  const custom = $("customMessage").value.trim();
+  const generated = getGeneratedMap();
+  if(mode === "generated") return generated[lang] || "";
+  if(mode === "custom") return custom || generated[lang] || "";
+  if(!custom) return generated[lang] || "";
+  return (generated[lang] ? generated[lang] + " " : "") + custom;
 }
 
 function state(){
