@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Eid Card Studio Premium Final v3</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Eid GIF Generator Lite</title>
   <meta name="theme-color" content="#102534">
+  <script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.js"></script>
   <style>
     :root{
       --bg1:#102534; --bg2:#081118; --panel:#101923f2; --gold:#e8c67a; --gold2:#f5ddb0;
@@ -13,17 +14,14 @@
     *{box-sizing:border-box}
     body{
       margin:0; font-family:Arial,sans-serif; color:var(--text);
-      background:
-        radial-gradient(circle at 15% 12%, rgba(255,219,132,.14), transparent 20%),
-        radial-gradient(circle at 80% 8%, rgba(255,219,132,.08), transparent 18%),
-        linear-gradient(180deg,var(--bg1),var(--bg2));
+      background:linear-gradient(180deg,var(--bg1),var(--bg2));
       min-height:100vh;
     }
-    .app{max-width:1320px; margin:0 auto; padding:16px}
-    .title{font-size:1.95rem; font-weight:800; color:var(--gold2)}
+    .app{max-width:1180px; margin:0 auto; padding:16px}
+    .title{font-size:1.8rem; font-weight:800; color:var(--gold2)}
     .sub{color:var(--muted); margin:6px 0 16px; line-height:1.45}
-    .shell{display:grid; grid-template-columns:430px 1fr; gap:16px}
-    @media (max-width:980px){.shell{grid-template-columns:1fr}}
+    .shell{display:grid; grid-template-columns:390px 1fr; gap:16px}
+    @media (max-width:920px){.shell{grid-template-columns:1fr}}
     .panel{
       background:var(--panel);
       border:1px solid rgba(216,181,111,.28);
@@ -42,9 +40,9 @@
     label{display:block; font-size:.85rem; color:var(--muted); margin:0 0 6px}
     input,select,textarea{
       width:100%; padding:11px 12px; border-radius:12px;
-      background:#0b131a; color:#fff; border:1px solid rgba(232,198,122,.18); font:inherit; outline:none;
+      background:#0b131a; color:#fff; border:1px solid rgba(232,198,122,.18); font:inherit;
     }
-    textarea{min-height:78px; resize:vertical}
+    textarea{min-height:72px; resize:vertical}
     .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
     @media (max-width:560px){.grid2{grid-template-columns:1fr}}
     .checks{display:flex; flex-wrap:wrap; gap:8px}
@@ -67,24 +65,30 @@
       border:1px solid rgba(232,198,122,.16); margin-top:10px;
     }
     .generated h4{margin:0 0 6px; color:var(--gold); font-size:.92rem}
-    .rtl{direction:rtl; line-height:1.85}
+    #generatedArabic{direction:rtl; line-height:1.8}
     .canvasWrap{text-align:center}
-    canvas, video{
-      width:min(100%,680px);
+    canvas{
+      width:min(100%,540px);
       height:auto;
       border-radius:22px;
       border:1px solid rgba(232,198,122,.18);
       box-shadow:0 18px 36px rgba(0,0,0,.28);
       background:#0c1720;
     }
-    #videoPreview{display:none; margin-top:12px}
-    .small{font-size:.78rem}
+    #gifPreview{
+      width:min(100%,540px);
+      height:auto;
+      border-radius:22px;
+      border:1px solid rgba(232,198,122,.18);
+      margin-top:12px;
+      display:none;
+    }
   </style>
 </head>
 <body>
 <div class="app">
-  <div class="title">Eid Card Studio Premium Final v3</div>
-  <div class="sub">Vast message generation for the languages you select, with a single custom override field shared across all selected languages.</div>
+  <div class="title">Eid GIF Generator Lite</div>
+  <div class="sub">Faster GIF generation, fixed message generator, and all text stays inside the message rectangle.</div>
 
   <div class="shell">
     <div class="panel">
@@ -112,11 +116,11 @@
             </select>
           </div>
           <div>
-            <label for="duration">Video length</label>
-            <select id="duration">
-              <option value="2">2 sec</option>
-              <option value="3" selected>3 sec</option>
-              <option value="4">4 sec</option>
+            <label for="frames">GIF speed</label>
+            <select id="frames">
+              <option value="8">Fast</option>
+              <option value="10" selected>Balanced</option>
+              <option value="14">Smoother</option>
             </select>
           </div>
         </div>
@@ -127,18 +131,15 @@
         <div class="checks">
           <label class="chip"><input type="checkbox" class="langBox" value="ar" checked> Arabic</label>
           <label class="chip"><input type="checkbox" class="langBox" value="en" checked> English</label>
-          <label class="chip"><input type="checkbox" class="langBox" value="ur" checked> Urdu</label>
+          <label class="chip"><input type="checkbox" class="langBox" value="ur"> Urdu</label>
           <label class="chip"><input type="checkbox" class="langBox" value="tr"> Turkish</label>
           <label class="chip"><input type="checkbox" class="langBox" value="fr"> French</label>
           <label class="chip"><input type="checkbox" class="langBox" value="es"> Spanish</label>
-          <label class="chip"><input type="checkbox" class="langBox" value="id"> Indonesian</label>
-          <label class="chip"><input type="checkbox" class="langBox" value="ms"> Malay</label>
-          <label class="chip"><input type="checkbox" class="langBox" value="bn"> Bengali</label>
         </div>
       </div>
 
       <div class="section">
-        <h3>Smart Message Generator</h3>
+        <h3>Message Generator</h3>
         <div class="grid2">
           <div>
             <label for="relationship">Relationship</label>
@@ -153,78 +154,57 @@
           <div>
             <label for="tone">Tone</label>
             <select id="tone">
-              <option selected>Mixed</option>
-              <option>Islamic</option>
               <option>Warm</option>
               <option>Poetic</option>
+              <option>Spiritual</option>
+              <option>Joyful</option>
               <option>Formal</option>
             </select>
           </div>
         </div>
         <div class="btnrow" style="margin-top:10px">
           <button class="primary" id="generateBtn" type="button">Generate Message</button>
-          <button class="secondary" id="useBtn" type="button">Use Generated on Card</button>
-          <button class="ghost" id="autoBtn" type="button">Auto: Generate + Create Video</button>
+          <button class="secondary" id="useBtn" type="button">Use Generated</button>
         </div>
-
         <div class="generated">
           <h4>Generated Arabic</h4>
-          <div id="generatedArabic" class="rtl"></div>
+          <div id="generatedArabic"></div>
         </div>
         <div class="generated">
           <h4>Generated English</h4>
           <div id="generatedEnglish"></div>
         </div>
-        <div class="generated">
-          <h4>Generated Urdu</h4>
-          <div id="generatedUrdu" class="rtl"></div>
-        </div>
-        <div class="generated">
-          <h4>Generated Other Selected Languages</h4>
-          <div id="generatedOther"></div>
-        </div>
         <div class="status" id="status"></div>
       </div>
 
       <div class="section">
-        <h3>Single Custom Personal Note</h3>
-        <div class="grid2">
-          <div>
-            <label for="messageMode">Message mode</label>
-            <select id="messageMode">
-              <option value="generated" selected>Use generated messages</option>
-              <option value="custom">Use one personal note for all selected languages</option>
-              <option value="mixed">Add one personal note under generated messages</option>
-            </select>
-          </div>
-          <div>
-            <label for="showEnglishAs">English style</label>
-            <select id="showEnglishAs">
-              <option value="normal" selected>Normal</option>
-              <option value="compact">Compact</option>
-            </select>
-          </div>
-        </div>
-        <label for="customMessage" style="margin-top:10px">Personal note</label>
-        <textarea id="customMessage" placeholder="Paste one personal note here. In custom mode, this single note is used for all selected languages. In mixed mode, it is added below the generated messages."></textarea>
-        <div class="hint" style="margin-top:8px">No separate custom boxes per language anymore.</div>
+        <h3>Custom Text</h3>
+        <label for="englishMessage">English</label>
+        <textarea id="englishMessage">May Allah accept our fasting and prayers, fill your home with peace, and bless you with joy on this beautiful Eid.</textarea>
+        <label for="urduMessage" style="margin-top:10px">Urdu</label>
+        <textarea id="urduMessage">عید مبارک! اللہ آپ کی عبادات قبول فرمائے اور آپ کے گھر کو خوشیوں سے بھر دے۔</textarea>
+        <label for="turkishMessage" style="margin-top:10px">Turkish</label>
+        <textarea id="turkishMessage">Eid Mübarek! Allah ibadetlerinizi kabul etsin ve evinizi bereketle doldursun.</textarea>
+        <label for="frenchMessage" style="margin-top:10px">French</label>
+        <textarea id="frenchMessage">Joyeux Aïd ! Qu’Allah accepte vos prières et remplisse votre foyer de paix et de bénédictions.</textarea>
+        <label for="spanishMessage" style="margin-top:10px">Spanish</label>
+        <textarea id="spanishMessage">¡Feliz Eid! Que Allah acepte tus oraciones y llene tu hogar de paz y bendiciones.</textarea>
       </div>
 
       <div class="section">
-        <h3>Create Video</h3>
+        <h3>Create GIF</h3>
         <div class="btnrow">
-          <button class="primary" id="generateVideoBtn" type="button">Generate Video</button>
-          <button class="secondary" id="downloadVideoBtn" type="button" disabled>Download Video</button>
+          <button class="primary" id="generateGifBtn" type="button">Generate GIF</button>
+          <button class="secondary" id="downloadGifBtn" type="button" disabled>Download GIF</button>
         </div>
-        <div class="hint" style="margin-top:10px">Browser export will usually download as WebM. That part is still a browser limitation.</div>
+        <div class="hint" style="margin-top:10px">This lighter version uses a smaller canvas and fewer frames, so it should finish much faster on mobile.</div>
       </div>
     </div>
 
     <div class="panel canvasWrap">
       <div class="hint" style="margin-bottom:10px">Live preview</div>
-      <canvas id="previewCanvas" width="720" height="920"></canvas>
-      <video id="videoPreview" controls playsinline></video>
-      <div class="hint small" style="margin-top:10px">Preview updates live while you change selected languages, message mode, and text.</div>
+      <canvas id="previewCanvas" width="540" height="660"></canvas>
+      <img id="gifPreview" alt="Generated GIF preview">
     </div>
   </div>
 </div>
@@ -240,138 +220,55 @@ const THEMES = {
 
 const DATA = {
   ar:{
-    open:{Family:["إلى عائلتنا الغالية،","إلى أهلي الأحبة،","إلى الأسرة الكريمة،","إلى من تكتمل بهم فرحة العيد،","إلى أحب الناس إلى القلب،","إلى من يجعلون العيد أجمل،","إلى من لهم مكانة خاصة في قلبي،","إلى الأسرة التي يزدهر بها البيت،","إلى من أجد معهم فرح العيد الحقيقي،","إلى من تحلو بهم الأيام،"],
-          "Close Friend":["إلى صديق عزيز،","إلى صديقي الغالي،","إلى رفيق القلب،","إلى من تطيب الصحبة به،","إلى صديق لا تُنسى مواقفه،","إلى من يجعل الحياة أخف وأجمل،","إلى صديق تأنس به الروح،","إلى من أثق بودّه وإخلاصه،","إلى الصديق الذي يبهج الأيام،","إلى رفيق المواقف الجميلة،"],
-          Colleague:["إلى زميل كريم،","إلى زميل عزيز،","مع أطيب التهاني،","إلى من نعتز بالعمل معه،","إلى زميل نقدّر وجوده،","إلى من نثمّن حسن تعامله،","إلى من نشارك معه السعي والنجاح،","إلى زميل له مكانة واحترام،","إلى من يجعل بيئة العمل ألطف،","إلى من نتمنى له كل خير،"],
-          Neighbour:["إلى جار كريم،","إلى جيراننا الأعزاء،","مع خالص التهاني،","إلى من يجمّل الجوار بحسن الخلق،","إلى الجار الطيب،","إلى من يجعل الجوار نعمة،","إلى أهل المودة والقرب،","إلى الجار الذي يترك أثرًا جميلًا،","إلى أصحاب القلوب الطيبة من الجيران،","إلى من يشيع الطمأنينة في الجوار،"],
-          General:["عيد مبارك،","أطيب التهاني بعيد الفطر،","كل عام وأنتم بخير،","مع خالص المحبة في هذا العيد،","أهديكم أجمل التهاني في هذا اليوم المبارك،","في هذا العيد المبارك،","أرسل إليكم تهنئة صادقة،","أبعث إليكم أطيب الدعوات،","أشارككم فرحة هذا اليوم الكريم،","بكل الود أقول لكم عيد مبارك،"]},
-    mid:{
-      Mixed:["تقبل الله منا ومنكم صالح الأعمال وجعل أيامكم مليئة بالسكينة والفرح.","نسأل الله أن يملأ هذا العيد قلوبكم نورًا وبيوتكم بركة.","عيد مبارك، أسأل الله لكم قبولًا ورحمة وفرحًا جميلًا.","أسأل الله أن يجعل هذا العيد بابًا للطمأنينة والبشائر.","جعله الله عيدًا يزهر فيه القلب بالرضا والمحبة.","نسأل الله أن يكتب لكم في هذا اليوم خيرًا كثيرًا وراحةً تدوم.","جعل الله هذا العيد بداية لأيام أكثر صفاءً وسعادة.","أرجو لكم عيدًا يحمل إلى قلوبكم السرور وإلى بيوتكم السكينة.","أسأل الله أن يمسح عنكم التعب ويبدله فرحًا ونورًا.","ليكن هذا العيد موعدًا للراحة والدعوات المقبولة."],
-      Islamic:["تقبل الله صيامكم وقيامكم ونياتكم وثبتكم بعد رمضان.","نسأل الله أن يجدد الإيمان في القلوب والرحمة في البيوت.","أحاطكم الله بالمغفرة والهداية والرضا.","جعل الله هذا العيد شاهدًا لكم لا عليكم.","رزقكم الله القبول والثبات والسكينة بعد رمضان.","أسأل الله أن يجعل أعمالكم خالصة مقبولة ويبارك لكم في أيامكم.","اللهم تقبل الطاعات واملأ القلوب نورًا ويقينًا.","نسأل الله أن يكتب لكم أجرًا عظيمًا ورحمة واسعة.","جعل الله هذا اليوم سببًا لرفعة الدرجات وصفاء القلوب.","رزقكم الله الثبات على الخير ودوام القرب منه."],
-      Warm:["أرسل لكم محبتي ودعائي الصادق في هذا اليوم المبارك.","أسأل الله أن يكتب لكم عيدًا هادئًا ومليئًا بالمسرات.","أذكركم اليوم بكل محبة ودعوات طيبة.","أهديكم أمنياتي بيوم يملؤه الفرح والسكينة.","أرجو لكم عيدًا يبهج القلوب ويقرّب الأحبة.","أتمنى لكم عيدًا دافئًا مليئًا بالحب والراحة.","أبعث لكم من القلب دعوات صادقة بالسعادة.","أتمنى أن يكون يومكم هذا لطيفًا وجميلًا على قلوبكم.","أرجو أن تتكرر عليكم هذه الفرحة دائمًا بخير.","أسأل الله أن يملأ أوقاتكم راحة وهناءً."],
-      Poetic:["ليكن ضوء العيد سكينة تمسح الهم وتوقظ الرجاء.","ليأت العيد كالفجر لطيفًا ومليئًا بالبشائر.","ولتزهر القلوب شكرًا كما تتلألأ فوانيس العيد في السماء.","وليكن هذا العيد نسمة صفاء تعبر القلب وتضيء الروح.","ولتكن أيامكم كضياء القمر هدوءًا وجمالًا.","ليحمل هذا العيد إلى أرواحكم نورًا وإلى أيامكم بهجة.","كأن العيد رسالة لطفٍ تهبط على القلوب المتعبة.","ليترك هذا اليوم في نفوسكم أثرًا من نور وسلام.","لتسكن أرواحكم كما يسكن الليل تحت ضياء القمر.","وليكن الفرح في هذا العيد رقيقًا وعميقًا كالدعاء."],
-      Formal:["تفضلوا بقبول أصدق التهاني وأطيب الأمنيات بمناسبة عيد الفطر.","نسأل الله لكم السلامة والتوفيق والازدهار في هذه المناسبة المباركة.","مع الدعاء لكم بعيد مبارك مفعم بالخير والنجاح.","يسرّني أن أبعث لكم أصدق التهاني بهذه المناسبة.","أرجو لكم عيدًا مباركًا حافلًا بالخير والسرور.","أتقدم إليكم بخالص التهاني والتبريكات بهذه المناسبة الكريمة.","سائلين المولى أن يجعلها أيام خير وبركة عليكم.","مع أطيب الأمنيات بدوام الصحة والعافية والهناء.","كل التمنيات لكم بعيد سعيد يملؤه الخير.","نسأل الله أن يكتب لكم دوام التوفيق والطمأنينة."]
-    },
-    wish:{Family:["جعل الله بيوتكم عامرة بالرحمة والسرور.","بارك الله لكم في أهلكم وأوقاتكم وفرحتكم.","رزقكم الله سكينة تدوم وفرحة تتجدد.","وأدام بينكم المودة والطمأنينة.","وحفظ لكم الأحبة وجمعكم على الخير.","وجعل بيتكم موطنًا للهناء والسلام.","ورزقكم لحظات لا تُنسى مع من تحبون.","وأبقاكم دائمًا على المحبة والرضا.","وأدام على أسرتكم النور والطمأنينة.","وجعل أفراحكم متصلة وخيراتكم كثيرة."],
-      "Close Friend":["نور الله دربك وشرح صدرك ويسر أمرك.","جعل الله عيدك سلامًا وفرحًا ودعاءً مستجابًا.","رزقك الله قلبًا مطمئنًا وأيامًا مشرقة.","وأبدلك الله راحةً بعد كل تعب.","وكتب لك من الخير أجمله وأطيبه.","وجعل القادم من أيامك أجمل وألطف.","وأبقى على قلبك نور الأمل والسكينة.","وأحاطك بعنايته ولطفه في كل حين.","ورزقك نجاحًا يسعد قلبك ويريح بالك.","وجعل فرحتك في هذا العيد ممتدة."],
-      Colleague:["كل عام وأنتم بخير وسلام ونجاح.","جعل الله هذه المناسبة بابًا للخير والتوفيق لكم.","نسأل الله لكم السلامة والازدهار والراحة.","وأدام عليكم النجاح والبركة في السعي والعمل.","ورزقكم تقدّمًا وطمأنينة في أيامكم القادمة.","وجعل جهودكم مثمرة وأيامكم مطمئنة.","وأبقى عليكم نعمته وتوفيقه.","ورزقكم اتزانًا ورضًا في كل ما تسعون إليه.","وجعل الخير رفيق خطاكم دائمًا.","وأكرمكم بالمزيد من النجاح والسكينة."],
-      Neighbour:["نسأل الله أن يملأ بيتكم بالخير والطمأنينة.","عيدكم مبارك وفرحتكم دائمة بإذن الله.","جعل الله أيامكم عامرة بالمودة والسكينة.","وأبقى عليكم نعمة الجوار الطيب.","ورزقكم بيتًا يفيض سلامًا وبركة.","وجعل بينكم وبين أحبابكم الألفة الدائمة.","وأدام عليكم السعادة والهناء في منازلكم.","ورزقكم خيرًا يملأ أيامكم راحة.","وجعل الفرح ساكنًا أبواب بيوتكم.","وأبقى مودتكم وسلامكم ممتدًا."],
-      General:["تقبل الله طاعاتكم وملأ أيامكم رحمة وسرورًا.","جعله الله عيد خير وفرح وبدايات جميلة.","أنار الله قلوبكم وبيوتكم بالسعادة والبركة.","ورزقكم من واسع فضله ما يسرّ قلوبكم.","وكتب لكم فرحًا لا ينقطع وسكينة لا تزول.","وأكرمكم بأيام تمتلئ بالطمأنينة والفضل.","وجعل الخير يسبقكم أينما اتجهتم.","وأبقى عليكم نعمته ظاهرًا وباطنًا.","ورزقكم ما تتمنون من راحة وهناء.","وجعل هذا اليوم فاتحة خير لكم."]
-    },
-    close:["تقبل الله منا ومنكم صالح الأعمال.","وكل عام وأنتم بخير وسلام.","مع خالص الدعاء والمودة.","أسأل الله أن يديم عليكم نعمه.","وعساكم من عواده.","أعاده الله عليكم بالخير واليُمن.","دمتم في حفظ الله ورعايته.","ولكم مني خالص التقدير والمحبة.","ودمتم بأجمل حال.","بارك الله فيكم وفي أيامكم."]
+    open:{Family:["إلى عائلتنا الغالية،","إلى أهلي الأحبة،","إلى الأسرة الكريمة،"],"Close Friend":["إلى صديق عزيز،","إلى صديقي الغالي،","إلى رفيق القلب،"],Colleague:["إلى زميل كريم،","إلى زميل عزيز،","مع أطيب التهاني،"],Neighbour:["إلى جار كريم،","إلى جيراننا الأعزاء،","مع خالص التهاني،"],General:["عيد مبارك،","أطيب التهاني بعيد الفطر،","كل عام وأنتم بخير،"]},
+    mid:{Warm:["أرسل لكم محبتي ودعائي الصادق في هذا اليوم المبارك.","أسأل الله أن يكتب لكم عيدًا هادئًا ومليئًا بالمسرات.","أذكركم اليوم بكل محبة ودعوات طيبة."],Poetic:["ليكن ضوء العيد سكينة تمسح الهم وتوقظ الرجاء.","ليأت العيد كالفجر لطيفًا ومليئًا بالبشائر.","ولتزهر القلوب شكرًا كما تتلألأ فوانيس العيد في السماء."],Spiritual:["تقبل الله صيامكم وقيامكم ونياتكم وثبتكم بعد رمضان.","نسأل الله أن يجدد الإيمان في القلوب والرحمة في البيوت.","أحاطكم الله بالمغفرة والهداية والرضا."],Joyful:["جعله الله يومًا مفعمًا بالضحكات والحلوى والذكريات الجميلة.","أدام الله عليكم بهجة العيد وفرحة اللقاء.","ليكن عيدكم عامرًا بالسرور والمواقف السعيدة."],Formal:["تفضلوا بقبول أصدق التهاني وأطيب الأمنيات بمناسبة عيد الفطر.","نسأل الله لكم السلامة والتوفيق والازدهار في هذه المناسبة المباركة.","مع الدعاء لكم بعيد مبارك مفعم بالخير والنجاح."]},
+    wish:{Family:["جعل الله بيوتكم عامرة بالرحمة والسرور.","بارك الله لكم في أهلكم وأوقاتكم وفرحتكم.","رزقكم الله سكينة تدوم وفرحة تتجدد."],"Close Friend":["نور الله دربك وشرح صدرك ويسر أمرك.","جعل الله عيدك سلامًا وفرحًا ودعاءً مستجابًا.","رزقك الله قلبًا مطمئنًا وأيامًا مشرقة."],Colleague:["كل عام وأنتم بخير وسلام ونجاح.","جعل الله هذه المناسبة بابًا للخير والتوفيق لكم.","نسأل الله لكم السلامة والازدهار والراحة."],Neighbour:["نسأل الله أن يملأ بيتكم بالخير والطمأنينة.","عيدكم مبارك وفرحتكم دائمة بإذن الله.","جعل الله أيامكم عامرة بالمودة والسكينة."],General:["تقبل الله طاعاتكم وملأ أيامكم رحمة وسرورًا.","جعله الله عيد خير وفرح وبدايات جميلة.","أنار الله قلوبكم وبيوتكم بالسعادة والبركة."]},
+    close:["تقبل الله منا ومنكم صالح الأعمال.","وكل عام وأنتم بخير وسلام.","مع خالص الدعاء والمودة."]
   },
   en:{
-    open:{Family:["To our beloved family,","Dear family,","To my dear family,","To the ones who make Eid feel like home,","To the hearts closest to mine,","To our treasured family,","To the people who make every celebration warmer,","To the family I cherish deeply,","To my loved ones on this blessed day,","To the ones who make home feel brighter,"],
-      "Close Friend":["Dear friend,","To a cherished friend,","My dear friend,","To someone who makes life brighter,","To a friend I truly value,","To a friend close to my heart,","To someone whose friendship means a lot,","To a truly special friend,","To the friend who brings ease to life,","To a friend I appreciate deeply,"],
-      Colleague:["Dear colleague,","To a valued colleague,","With warm Eid wishes,","Wishing you a blessed Eid,","To a respected colleague,","To a wonderful teammate,","Warm wishes to a thoughtful colleague,","To someone I’m glad to work with,","To a colleague I sincerely appreciate,","With respect and best wishes this Eid,"],
-      Neighbour:["Dear neighbour,","To our wonderful neighbour,","With heartfelt Eid wishes,","To a kind neighbour,","Warm wishes to a good neighbour,","To the neighbour who brings warmth to the street,","To our thoughtful neighbour,","To those who make neighbourhood feel kinder,","To a neighbour we value,","To the home next door with warm hearts,"],
-      General:["Eid Mubarak!","Wishing you a blessed Eid,","With heartfelt Eid wishes,","On this joyous Eid,","Sending warm Eid greetings,","On this beautiful day of Eid,","With sincere Eid greetings,","On this blessed celebration,","Warm wishes to you this Eid,","With joy and gratitude this Eid,"]},
-    mid:{
-      Mixed:["May Allah accept your عبادات and fill your home with peace, joy, and barakah.","Wishing you a beautiful Eid full of gratitude, mercy, and happiness.","May this Eid bring calm to your heart and blessings to your family.","May Allah make this occasion a source of light, ease, and sincere joy for you.","Wishing you an Eid filled with kindness, reflection, and beautiful moments.","May this Eid leave your heart lighter and your home brighter.","May peace settle gently into your days and blessings into your home.","Wishing you a day filled with warmth, faith, and meaningful joy.","May this blessed occasion bring comfort, hope, and renewed happiness.","May Allah fill this Eid with mercy, gladness, and beautiful ease for you."],
-      Islamic:["May Allah accept your fasting, prayers, and sincere intentions.","May this Eid renew faith in your heart and mercy in your home.","May Allah surround you with forgiveness, guidance, and quiet contentment.","May this blessed day draw you closer to Allah and fill your life with barakah.","May Allah grant you acceptance, steadiness, and peace after Ramadan.","May this Eid be a continuation of the light and discipline of Ramadan for you.","May Allah reward every sincere act and every hidden dua you made.","May your heart remain firm upon goodness and remembrance.","May this day be filled with acceptance, mercy, and nearness to Allah.","May Allah place sakinah in your heart and barakah in all that is ahead."],
-      Warm:["Sending you love and warm prayers on this special day.","Thinking of you with affection and heartfelt duas today.","Wishing you comfort, closeness, and a day full of gentle happiness.","May your Eid be full of smiles, warmth, and meaningful time with loved ones.","Hoping this day brings you rest, joy, and beautiful memories.","Wishing you sweet moments, peaceful hours, and a heart full of gratitude.","May this Eid wrap your home in warmth and your heart in joy.","Sending sincere wishes for a day that feels soft, happy, and blessed.","May you feel surrounded by care, peace, and celebration today.","Hoping this Eid leaves behind memories you will treasure."],
-      Poetic:["May the moonlight of Eid soften every worry and brighten every hope.","May this Eid arrive like dawn, gentle and full of promise.","May your heart bloom with gratitude as the lanterns of Eid rise in the night.","May this celebration bring light to your path and calm to your soul.","May this blessed day glow softly through your life with grace and peace.","May the beauty of this night leave your spirit lighter and your heart fuller.","May the quiet joy of Eid settle over your home like moonlight.","May gratitude rise within you like light in the early morning sky.","May this day feel like a tender pause filled with mercy and beauty.","May the blessings of Eid drift gently into every corner of your life."],
-      Formal:["Please accept my sincere greetings on the occasion of Eid ul-Fitr.","Wishing you peace, prosperity, and well-being on this blessed occasion.","With sincere regards and best wishes for a blessed Eid.","May this special occasion bring continued success and happiness to you and your family.","Kindly accept my warm wishes for a joyful and peaceful Eid.","I extend my heartfelt greetings to you on this blessed celebration.","Wishing you and your loved ones a truly meaningful Eid.","May this occasion bring dignity, calm, and happiness to your home.","Please accept my best wishes for health, peace, and blessing.","I wish you a blessed Eid filled with goodwill and serenity."]
-    },
-    wish:{Family:["may your home be filled with mercy, warmth, and laughter.","may Allah place barakah in every corner of your home.","may peace, affection, and joy stay with your family always.","may your family remain united in love and goodness.","may this Eid leave your home brighter and your hearts calmer.","may your table, home, and hearts stay full of blessing.","may your loved ones always be surrounded by ease and mercy.","may your family’s bond continue to deepen in kindness.","may joy and faith remain alive in your home.","may this Eid become a memory your family carries with love."],
-      "Close Friend":["may Allah reward your heart with light and your path with ease.","may your Eid be bright with peace, sincere smiles, and answered prayers.","may this beautiful day bring you calm, joy, and unforgettable moments.","may goodness continue to follow you wherever you go.","may your days ahead be full of ease, hope, and happiness.","may Allah open for you doors of relief, goodness, and joy.","may your heart stay steady and your life stay blessed.","may your future unfold with grace, clarity, and peace.","may kindness and ease accompany you in every season.","may your life be filled with moments that comfort and uplift you."],
-      Colleague:["may this occasion bring serenity, prosperity, and goodwill.","may this Eid bring you peace, continued success, and happiness.","wishing you well-being, grace, and renewed blessings.","may the coming days bring clarity, progress, and peace.","may this celebration leave you encouraged and uplifted.","may your efforts be met with ease and your days with balance.","may goodness accompany your work and your personal life alike.","may your next steps be filled with confidence and calm.","wishing you continued growth, stability, and blessing.","may this Eid refresh your spirit and encourage your path forward."],
-      Neighbour:["may your home be filled with kindness, peace, and sweet moments.","may this Eid bring blessings to your family and joy to your doorstep.","wishing you a peaceful home and a joyful Eid.","may harmony and goodness continue to surround your home.","may your days be brightened with neighbourly warmth and blessings.","may this occasion bring gentleness, safety, and happiness to your home.","wishing your family peace and your doorstep joy.","may the spirit of Eid bring calm and generosity to your household.","may blessing settle into your home and remain there.","may your home always feel warm, safe, and full of grace."],
-      General:["may Allah accept your prayers and fill your days with peace and mercy.","may this Eid bring joy, light, and beautiful new beginnings.","may your home and heart be filled with happiness and barakah.","may this day leave you with gratitude, comfort, and hope.","may your future be opened to ease, goodness, and contentment.","may blessing find you in both the quiet and joyful moments.","may this celebration renew your hope and steady your heart.","may your path ahead feel lighter, brighter, and more peaceful.","may Allah write for you what is best and most beautiful.","may this Eid leave traces of mercy and joy in your life."]
-    },
-    close:["May Allah accept our good deeds.","Wishing you continued peace and blessings.","With warm regards and heartfelt duas.","May your days ahead be full of barakah.","Eid Mubarak to you and your loved ones.","With sincere prayers for your happiness and ease.","May this Eid stay with you in the form of peace and gratitude.","Wishing you blessing, joy, and calm in the days ahead.","With affection and best wishes this blessed Eid.","Sending heartfelt Eid prayers your way."]
-  },
-  ur:{
-    open:["عید مبارک،","آپ کو عید کی خوشیاں مبارک ہوں،","دل سے عید مبارک،","آپ سب کو عید مبارک،","اس مبارک دن پر عید کی ڈھیروں خوشیاں،","نہایت محبت کے ساتھ عید مبارک،","اس بابرکت موقع پر عید کی مبارکباد،","آپ اور آپ کے گھر والوں کو عید مبارک،","عید کی یہ خوشی آپ کو مبارک ہو،","خلوصِ دل سے عید مبارک،"],
-    mid:{
-      Mixed:["اللہ آپ کی عبادات قبول فرمائے اور آپ کے دل کو سکون دے۔","یہ عید آپ کے گھر میں رحمت، خوشی اور برکت لے کر آئے۔","اللہ آپ کی زندگی کو خوشیوں اور آسانیوں سے بھر دے۔","یہ مبارک دن آپ کے لیے روشنی، سکون اور مسرت کا سبب بنے۔","اللہ کرے یہ عید آپ کے لیے نئی امید اور خوشی لائے۔","اللہ آپ کے دنوں میں خیر، دل میں اطمینان اور گھر میں خوشحالی عطا فرمائے۔","یہ عید آپ کی دعاؤں کی قبولیت اور خوشیوں کی نوید بنے۔","اللہ آپ کے نصیب میں آسانیاں، مسکراہٹیں اور خوبصورت لمحات لکھ دے۔","یہ عید آپ کے گھر میں محبت اور آپ کے دل میں روشنی پیدا کرے۔","اللہ آپ کی زندگی کو رحمت، سکون اور کامیابی سے بھر دے۔"],
-      Islamic:["اللہ آپ کے روزے، نمازیں اور دعائیں قبول فرمائے۔","اللہ آپ کو رمضان کے بعد بھی ثابت قدمی عطا فرمائے۔","اللہ آپ کو مغفرت، رحمت اور ہدایت نصیب فرمائے۔","اللہ آپ کے دل میں ایمان کی تازگی پیدا فرمائے۔","اللہ آپ کو قبولیت اور قربِ الٰہی عطا فرمائے۔","اللہ آپ کو اپنے فضل، کرم اور رحمت کے سائے میں رکھے۔","اللہ اس عید کو آپ کے لیے قربِ خداوندی کا ذریعہ بنائے۔","اللہ آپ کی نیک نیتوں کو قبول فرما کر دل کو نور سے بھر دے۔","اللہ آپ کے دل کو ذکر اور یقین سے روشن رکھے۔","اللہ آپ پر اپنی رحمتوں کے دروازے کھول دے۔"],
-      Warm:["اللہ آپ کو دل کی خوشی اور گھر کی راحت عطا فرمائے۔","آپ کی عید محبت، اپنائیت اور خوشیوں سے بھر جائے۔","اللہ کرے یہ دن آپ کے لیے بے حد خوبصورت ہو۔","آپ کی زندگی میں آسانیاں اور سکون بڑھے۔","آپ اپنے پیاروں کے ساتھ خوشیوں بھرا وقت گزاریں۔","یہ عید آپ کے گھر میں ہنسی، محبت اور سکون کے رنگ بھر دے۔","اللہ آپ کے ہر دن کو عید جیسی خوشی عطا فرمائے۔","آپ جہاں بھی ہوں، خوشی اور راحت آپ کے ساتھ رہے۔","یہ دن آپ کو اپنے عزیزوں کے قریب اور دل کو مطمئن کرے۔","اللہ آپ کی ہر صبح کو امید اور ہر شام کو سکون دے۔"],
-      Poetic:["چاند کی روشنی آپ کی زندگی میں سکون لے آئے۔","یہ عید صبح کی پہلی روشنی کی طرح امید جگائے۔","دلوں میں شکر اور آنکھوں میں خوشی کی چمک رہے۔","یہ مبارک دن آپ کی روح کو روشنی اور نرمی عطا کرے۔","آپ کی زندگی عید کی روشنی کی طرح جگمگاتی رہے۔","خوشیوں کی مہک آپ کے آنگن میں دیر تک بسی رہے۔","یہ عید آپ کی دعاؤں کو آسمان تک پہنچا دے اور دل کو ہلکا کر دے۔","ہر لمحہ نور، ہر دعا قبول، اور ہر دن مہربانی سے بھر جائے۔","چاندنی جیسی نرمی آپ کی زندگی کے ہر موڑ پر ساتھ رہے۔","یہ دن آپ کے دل میں امید اور آنکھوں میں روشنی بھر دے۔"],
-      Formal:["آپ کو عید الفطر کی دلی مبارکباد پیش ہے۔","اللہ کرے یہ مبارک موقع آپ کے لیے خیر و برکت کا باعث ہو۔","ہم آپ کے لیے امن، صحت اور کامیابی کی دعا کرتے ہیں۔","اس مبارک دن پر ہماری نیک تمنائیں آپ کے ساتھ ہیں۔","اللہ آپ کو خوشحالی اور کامیابی عطا فرمائے۔","نیک خواہشات کے ساتھ آپ کو اور آپ کے اہلِ خانہ کو عید مبارک۔","دعا ہے کہ یہ بابرکت دن آپ کے لیے امن اور مسرت کا پیغام لائے۔","عید کی اس پرمسرت گھڑی میں آپ کے لیے خیر، عافیت اور آسانی کی دعا ہے۔","آپ کے لیے دلی احترام اور نیک تمناؤں کے ساتھ عید مبارک۔","اللہ آپ کو صحت، سلامتی اور اطمینان نصیب فرمائے۔"]
-    },
-    close:["اور آپ کو ہمیشہ خوش رکھے۔","اور آپ کے گھر میں برکت دے۔","اور آپ کو کامیابی عطا کرے۔","اور آپ کی زندگی میں سکون پیدا کرے۔","اور آپ کی ہر دعا قبول فرمائے۔","اور آپ کے نصیب کو خیر و بھلائی سے بھر دے۔","اور آپ کے دل میں ہمیشہ امید اور روشنی قائم رکھے۔","اور آپ کے گھر کو محبت، رحمت اور سلامتی سے معمور کرے۔","اور آپ کی راہوں میں آسانی اور خیر لکھ دے۔","اور آپ کی زندگی کو خوشیوں سے روشن کر دے۔"]
-  },
-  extra:{
-    tr:["Eid Mübarek! Allah ibadetlerinizi kabul etsin, kalbinize huzur ve evinize bereket versin.","Mübarek Eid gününde Allah size sevinç, sağlık ve huzur nasip etsin.","Bu güzel bayram size umut, mutluluk ve hayırlı başlangıçlar getirsin.","Allah dualarınızı kabul etsin ve kalbinizi sükûnetle doldursun.","Bu bayram evinize neşe, gönlünüze ferahlık getirsin.","Eid Mübarek! Allah size huzur, bereket ve güzel günler nasip etsin.","Bayramınız sevgi, rahmet ve mutlulukla dolsun.","Allah bu mübarek günü sizin için hayra ve kolaylığa vesile kılsın.","Kalbinize nur, hanenize bereket dolsun.","Bu bayram size iç huzuru ve güzel hatıralar bıraksın."],
-    fr:["Joyeux Aïd ! Qu’Allah accepte vos prières et remplisse votre foyer de paix et de bénédictions.","Que cette fête de l’Aïd vous apporte sérénité, joie et miséricorde.","Je vous souhaite un Aïd rempli de lumière, de douceur et de bonheur durable.","Qu’Allah vous accorde la paix du cœur et la baraka dans votre foyer.","Que ce jour béni vous apporte espoir, gratitude et apaisement.","Joyeux Aïd ! Que cette célébration laisse dans votre vie lumière et réconfort.","Qu’Allah accepte vos actes et vous entoure de miséricorde.","Que l’Aïd soit pour vous un nouveau départ rempli de bonté.","Paix, joie et bénédictions à vous et à vos proches en ce jour d’Aïd.","Que votre maison soit remplie de joie, de paix et de grâce."],
-    es:["¡Feliz Eid! Que Allah acepte tus oraciones y llene tu hogar de paz y bendiciones.","Que este Eid te traiga alegría, tranquilidad y muchas bendiciones.","Te deseo un Eid lleno de luz, gratitud y momentos hermosos con tus seres queridos.","Que Allah llene tu corazón de paz y tu casa de baraka.","Que este día bendito te traiga esperanza, felicidad y consuelo.","¡Feliz Eid! Que tus días se llenen de misericordia y alegría.","Que Allah acepte tus buenas acciones y guíe tus pasos.","Que este Eid marque un nuevo comienzo lleno de bondad.","Paz, luz y bendiciones para ti y tu familia en este Eid.","Que la serenidad y la felicidad permanezcan en tu hogar."],
-    id:["Selamat Idulfitri! Semoga Allah menerima ibadahmu dan memenuhi rumahmu dengan damai dan berkah.","Semoga hari raya ini membawa ketenangan, kebahagiaan, dan keberkahan untukmu.","Semoga Allah mengabulkan doa-doamu dan menjadikan Eid ini awal yang indah.","Semoga hatimu dipenuhi ketenangan dan rumahmu dipenuhi rahmat.","Selamat Idulfitri! Semoga hari ini membawa cahaya dan harapan baru.","Semoga setiap amalmu diterima dan setiap harimu diberkahi.","Semoga Eid ini menghadirkan kelembutan, syukur, dan kebahagiaan.","Semoga Allah memberimu kedamaian, kesehatan, dan kemudahan.","Semoga rumahmu selalu dipenuhi cinta dan keberkahan.","Semoga hari yang mulia ini membawa sukacita yang tulus untukmu."],
-    ms:["Selamat Hari Raya Aidilfitri! Semoga Allah menerima ibadah anda dan mengurniakan keamanan serta keberkatan.","Semoga Aidilfitri ini membawa kegembiraan, ketenangan, dan rahmat ke dalam hidup anda.","Semoga setiap doa anda diterima dan rumah anda dipenuhi keberkatan.","Semoga hati anda dipenuhi kedamaian dan hidup anda dipenuhi kebaikan.","Selamat Hari Raya! Semoga hari ini membawa harapan dan kegembiraan baharu.","Semoga Allah merahmati anda dengan kesihatan, ketenangan, dan rezeki.","Semoga Aidilfitri ini menjadi permulaan yang indah untuk anda dan keluarga.","Semoga rumah anda sentiasa dipenuhi kasih sayang dan barakah.","Semoga hari yang mulia ini membawa kebahagiaan yang berkekalan.","Semoga setiap langkah anda dipandu dengan kebaikan dan rahmat."],
-    bn:["ঈদ মোবারক! আল্লাহ আপনার ইবাদত কবুল করুন এবং আপনার ঘরকে শান্তি ও বরকতে ভরে দিন।","এই ঈদ আপনার জীবনে সুখ, শান্তি ও নতুন আশার আলো নিয়ে আসুক।","আল্লাহ আপনার হৃদয়কে প্রশান্তি এবং আপনার পরিবারকে আনন্দে ভরে দিন।","ঈদের এই পবিত্র দিনে আল্লাহ আপনার সকল নেক আমল কবুল করুন।","আপনার ঘরে রহমত, ভালোবাসা ও শান্তি নেমে আসুক।","ঈদ মোবারক! আপনার জীবন আনন্দ, দয়া ও বরকতে ভরে উঠুক।","আল্লাহ আপনার দোয়া কবুল করুন এবং ভবিষ্যৎকে সহজ করুন।","এই ঈদ আপনার জন্য নতুন শুরু, আলো এবং শান্তির বার্তা বয়ে আনুক।","আপনার দিনগুলো আনন্দময় এবং হৃদয় প্রশান্ত থাকুক।","আল্লাহ আপনাকে এবং আপনার পরিবারকে সুখ ও নিরাপত্তা দান করুন।"]
+    open:{Family:["To our beloved family,","Dear family,","To my dear family,"],"Close Friend":["Dear friend,","To a cherished friend,","My dear friend,"],Colleague:["Dear colleague,","To a valued colleague,","With warm Eid wishes,"],Neighbour:["Dear neighbour,","To our wonderful neighbour,","With heartfelt Eid wishes,"],General:["Eid Mubarak!","Wishing you a blessed Eid,","With heartfelt Eid wishes,"]},
+    mid:{Warm:["Sending you love and warm prayers on this special day.","Thinking of you with affection and heartfelt duas today.","Wishing you comfort, closeness, and a day full of gentle happiness."],Poetic:["May the moonlight of Eid soften every worry and brighten every hope.","May this Eid arrive like dawn, gentle and full of promise.","May your heart bloom with gratitude as the lanterns of Eid rise in the night."],Spiritual:["May Allah accept your fasting, prayers, and sincere intentions.","May this Eid renew faith in your heart and mercy in your home.","May Allah surround you with forgiveness, guidance, and quiet contentment."],Joyful:["May your day be filled with laughter, sweet treats, and unforgettable moments.","Wishing you a celebration full of smiles and happy memories.","May this Eid bring joyful gatherings and plenty of reasons to smile."],Formal:["Please accept my sincere greetings on the occasion of Eid ul-Fitr.","Wishing you peace, prosperity, and well-being on this blessed occasion.","With sincere regards and best wishes for a blessed Eid."]},
+    wish:{Family:["may your home be filled with mercy, warmth, and laughter.","may Allah place barakah in every corner of your home.","may peace, affection, and joy stay with your family always."],"Close Friend":["may Allah reward your heart with light and your path with ease.","may your Eid be bright with peace, sincere smiles, and answered prayers.","may this beautiful day bring you calm, joy, and unforgettable moments."],Colleague:["may this occasion bring serenity, prosperity, and goodwill.","may this Eid bring you peace, continued success, and happiness.","wishing you well-being, grace, and renewed blessings."],Neighbour:["may your home be filled with kindness, peace, and sweet moments.","may this Eid bring blessings to your family and joy to your doorstep.","wishing you a peaceful home and a joyful Eid."],General:["may Allah accept your prayers and fill your days with peace and mercy.","may this Eid bring joy, light, and beautiful new beginnings.","may your home and heart be filled with happiness and barakah."]},
+    close:["May Allah accept our good deeds.","Wishing you continued peace and blessings.","With warm regards and heartfelt duas."]
   }
 };
 
 const $ = id => document.getElementById(id);
-let videoBlob = null;
+let gifBlob = null;
 
 function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-function selectedLangs(){ return [...document.querySelectorAll(".langBox:checked")].map(x => x.value); }
+function langs(){ return [...document.querySelectorAll(".langBox:checked")].map(x => x.value); }
 
 function generateMessage(){
-  const rel = $("relationship").value;
-  const tone = $("tone").value;
-  $("generatedArabic").textContent = [pick(DATA.ar.open[rel]), pick(DATA.ar.mid[tone]), pick(DATA.ar.wish[rel]), pick(DATA.ar.close)].join(" ");
-  $("generatedEnglish").textContent = [pick(DATA.en.open[rel]), pick(DATA.en.mid[tone]), pick(DATA.en.wish[rel]), pick(DATA.en.close)].join(" ");
-  $("generatedUrdu").textContent = [pick(DATA.ur.open), pick(DATA.ur.mid[tone]), pick(DATA.ur.close)].join(" ");
-
-  const others = [];
-  if(selectedLangs().includes("tr")) others.push("Turkish: " + pick(DATA.extra.tr));
-  if(selectedLangs().includes("fr")) others.push("French: " + pick(DATA.extra.fr));
-  if(selectedLangs().includes("es")) others.push("Spanish: " + pick(DATA.extra.es));
-  if(selectedLangs().includes("id")) others.push("Indonesian: " + pick(DATA.extra.id));
-  if(selectedLangs().includes("ms")) others.push("Malay: " + pick(DATA.extra.ms));
-  if(selectedLangs().includes("bn")) others.push("Bengali: " + pick(DATA.extra.bn));
-  $("generatedOther").innerHTML = others.length ? others.join("<br><br>") : "No extra selected languages right now.";
-
-  $("status").textContent = "Generated fresh messages for the languages you selected.";
-  drawPreview(0,90);
+  const r = $("relationship").value;
+  const t = $("tone").value;
+  const ar = [pick(DATA.ar.open[r]), pick(DATA.ar.mid[t]), pick(DATA.ar.wish[r]), pick(DATA.ar.close)].join(" ");
+  const en = [pick(DATA.en.open[r]), pick(DATA.en.mid[t]), pick(DATA.en.wish[r]), pick(DATA.en.close)].join(" ");
+  $("generatedArabic").textContent = ar;
+  $("generatedEnglish").textContent = en;
+  $("status").textContent = "New message generated.";
+  drawPreview(0,1);
 }
 
-function getGeneratedMap(){
-  const generated = {
-    ar: $("generatedArabic").textContent,
-    en: $("generatedEnglish").textContent,
-    ur: $("generatedUrdu").textContent
-  };
-  const otherText = $("generatedOther").innerText || "";
-  const extract = (label) => ((otherText.match(new RegExp(label + ": ([\s\S]*?)(?:\n\n|$)"))||[])[1]||"");
-  generated.tr = extract("Turkish");
-  generated.fr = extract("French");
-  generated.es = extract("Spanish");
-  generated.id = extract("Indonesian");
-  generated.ms = extract("Malay");
-  generated.bn = extract("Bengali");
-  return generated;
-}
-
-function resolveText(lang){
-  const mode = $("messageMode").value;
-  const custom = $("customMessage").value.trim();
-  const generated = getGeneratedMap();
-  if(mode === "generated") return generated[lang] || "";
-  if(mode === "custom") return custom || generated[lang] || "";
-  if(!custom) return generated[lang] || "";
-  return (generated[lang] ? generated[lang] + " " : "") + custom;
+function useGenerated(){
+  $("englishMessage").value = $("generatedEnglish").textContent || $("englishMessage").value;
+  drawPreview(0,1);
+  $("status").textContent = "Generated message applied.";
 }
 
 function state(){
-  const theme = THEMES[$("theme").value];
   return {
     recipient: $("recipient").value.trim() || "Dear Ahmed",
     fromName: $("fromName").value.trim() || "From Suleiman & Family",
-    theme,
+    theme: THEMES[$("theme").value],
     lines: [
-      ["ar", resolveText("ar")],
-      ["en", resolveText("en")],
-      ["ur", resolveText("ur")],
-      ["tr", resolveText("tr")],
-      ["fr", resolveText("fr")],
-      ["es", resolveText("es")],
-      ["id", resolveText("id")],
-      ["ms", resolveText("ms")],
-      ["bn", resolveText("bn")]
-    ].filter(x => selectedLangs().includes(x[0]) && x[1])
+      ["ar", $("generatedArabic").textContent || "تقبل الله منا ومنكم صالح الأعمال."],
+      ["en", $("englishMessage").value.trim()],
+      ["ur", $("urduMessage").value.trim()],
+      ["tr", $("turkishMessage").value.trim()],
+      ["fr", $("frenchMessage").value.trim()],
+      ["es", $("spanishMessage").value.trim()]
+    ].filter(x => langs().includes(x[0]) && x[1])
   };
 }
 
@@ -392,24 +289,25 @@ function wrapLines(ctx, text, maxWidth){
   return lines;
 }
 
-function fitLines(ctx, items, boxHeight){
-  let base = 21;
-  while(base >= 12){
-    let total = 0;
+function fitLines(ctx, lineSets, boxHeight, initialSize, minSize, family){
+  let size = initialSize;
+  while(size >= minSize){
+    ctx.font = family.replace("{size}", size);
+    let totalHeight = 0;
     const fitted = [];
-    for(const item of items){
-      ctx.font = item.font.replace("{size}", base + item.bump);
+    for(const item of lineSets){
+      ctx.font = item.font.replace("{size}", size + item.delta);
       const lines = wrapLines(ctx, item.text, item.maxWidth);
-      const h = lines.length * item.lineHeight(base + item.bump) + item.gap;
-      total += h;
-      fitted.push({...item, size: base + item.bump, lines});
+      fitted.push({...item, lines, size: size + item.delta});
+      totalHeight += lines.length * item.lineHeight + item.gap;
     }
-    if(total <= boxHeight) return fitted;
-    base -= 1;
+    if(totalHeight <= boxHeight) return fitted;
+    size -= 2;
   }
-  return items.map(item => {
-    ctx.font = item.font.replace("{size}", 12 + item.bump);
-    return {...item, size: 12 + item.bump, lines: wrapLines(ctx, item.text, item.maxWidth).slice(0,3)};
+  return lineSets.map(item => {
+    ctx.font = item.font.replace("{size}", minSize + item.delta);
+    const lines = wrapLines(ctx, item.text, item.maxWidth).slice(0,3);
+    return {...item, lines, size: minSize + item.delta};
   });
 }
 
@@ -429,7 +327,6 @@ function drawPreview(frame, total){
   const ctx = cv.getContext("2d");
   const s = state();
   const w = cv.width, h = cv.height;
-  const phase = frame / Math.max(1,total);
 
   const grad = ctx.createLinearGradient(0,0,0,h);
   grad.addColorStop(0, s.theme.bg1);
@@ -437,174 +334,155 @@ function drawPreview(frame, total){
   ctx.fillStyle = grad;
   ctx.fillRect(0,0,w,h);
 
-  const glow = ctx.createRadialGradient(112,98,18,112,98,150);
-  glow.addColorStop(0,"rgba(255,220,140,0.24)");
+  const glow = ctx.createRadialGradient(86,88,16,86,88,110);
+  glow.addColorStop(0,"rgba(255,220,140,0.25)");
   glow.addColorStop(1,"rgba(255,220,140,0)");
   ctx.fillStyle = glow;
   ctx.fillRect(0,0,w,h);
 
-  for(let i=0;i<52;i++){
-    const x=(i*71)%w, y=(i*43)%240;
-    const a=0.35 + 0.45*Math.sin(phase*Math.PI*2+i);
+  for(let i=0;i<40;i++){
+    const x=(i*71)%w, y=(i*43)%180;
+    const a=0.4 + 0.4*Math.sin((frame/Math.max(1,total))*Math.PI*2+i);
     ctx.fillStyle=`rgba(255,241,207,${Math.max(0.15,a)})`;
     ctx.fillRect(x,y,2,2);
   }
-
-  for(let i=0;i<26;i++){
-    const x=(i*29 + frame*7)%w;
-    const y=h-((i*37 + frame*9)%(h+70));
+  for(let i=0;i<16;i++){
+    const x=(i*29 + frame*9)%w, y=h-((i*37 + frame*11)%(h+60));
     ctx.fillStyle="rgba(255,213,120,0.72)";
-    ctx.beginPath();
-    ctx.arc(x,y,2+(i%2),0,Math.PI*2);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(x,y,2+(i%2),0,Math.PI*2); ctx.fill();
   }
 
+  // moon
   ctx.fillStyle = "#ffd77e";
-  ctx.beginPath(); ctx.arc(112,112,56,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(92,92,48,0,Math.PI*2); ctx.fill();
   ctx.fillStyle = s.theme.cardA;
-  ctx.beginPath(); ctx.arc(144,122,48,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(120,102,42,0,Math.PI*2); ctx.fill();
 
-  for(let i=0;i<5;i++){
-    const lx = 52 + i*130 + Math.sin(phase*Math.PI*2+i)*7;
-    const ly = 24 + ((frame*7 + i*55)%(h+90)) - 55;
-    ctx.strokeStyle="rgba(229,196,120,.85)";
+  // lanterns
+  for(let i=0;i<4;i++){
+    const lx = 42 + i*110 + Math.sin((frame/Math.max(1,total))*Math.PI*2+i)*6;
+    const ly = 16 + ((frame*8 + i*60)%(h+80)) - 60;
+    ctx.strokeStyle="rgba(229,196,120,.8)";
     ctx.lineWidth=2;
     ctx.beginPath(); ctx.moveTo(lx+8,ly); ctx.lineTo(lx+8,ly+8); ctx.stroke();
-    ctx.fillStyle="rgba(255,190,80,.34)";
+    ctx.fillStyle="rgba(255,190,80,.35)";
+    ctx.strokeStyle="rgba(244,199,117,.8)";
     roundRect(ctx,lx,ly+8,16,24,5,true);
   }
 
+  // ornaments
   ctx.strokeStyle="rgba(240,205,130,.35)";
   ctx.lineWidth=2;
-  [[14,14,92,92],[w-106,14,92,92],[14,h-106,92,92],[w-106,h-106,92,92]].forEach(b=>ctx.strokeRect(b[0],b[1],b[2],b[3]));
+  [[12,12,78,78],[w-90,12,78,78],[12,h-90,78,78],[w-90,h-90,78,78]].forEach(b=>ctx.strokeRect(b[0],b[1],b[2],b[3]));
 
-  ctx.textAlign = "center";
+  // titles
+  ctx.textAlign="center";
   ctx.fillStyle = s.theme.gold2;
-  ctx.font = 'bold 54px serif';
-  ctx.fillText("عيد مبارك", w/2, 120);
-  ctx.font = 'bold 28px Arial';
-  ctx.fillText("Eid Mubarak", w/2, 158);
+  ctx.font = 'bold 38px serif';
+  ctx.fillText("عيد مبارك", w/2, 100);
+  ctx.font = 'bold 24px Arial';
+  ctx.fillText("Eid Mubarak", w/2, 132);
   ctx.fillStyle = "#f8e8c7";
-  ctx.font = 'bold 20px Arial';
-  ctx.fillText(s.recipient, w/2, 196);
+  ctx.font = 'bold 18px Arial';
+  ctx.fillText(s.recipient, w/2, 168);
 
+  // mosque
   ctx.fillStyle = "rgba(17,33,39,.92)";
-  roundRect(ctx,130,280,460,58,16,true);
+  roundRect(ctx,105,250,330,48,14,true);
   ctx.fillStyle = "rgba(22,43,51,.98)";
-  roundRect(ctx,290,205,140,88,40,true);
-  [[178,240,22,98],[520,240,22,98],[250,265,22,73],[448,265,22,73]].forEach(b=>roundRect(ctx,b[0],b[1],b[2],b[3],9,true));
+  roundRect(ctx,228,186,84,68,34,true);
+  [[142,220,18,78],[380,220,18,78],[192,240,18,58],[330,240,18,58]].forEach(b=>roundRect(ctx,b[0],b[1],b[2],b[3],8,true));
 
-  const g2 = ctx.createLinearGradient(0,392,0,760);
+  // message box
+  const g2 = ctx.createLinearGradient(0,340,0,580);
   g2.addColorStop(0, s.theme.paper1);
   g2.addColorStop(1, s.theme.paper2);
   ctx.fillStyle = g2;
-  roundRect(ctx,86,392,548,328,20,true);
+  roundRect(ctx,70,340,400,230,18,true);
 
   ctx.fillStyle = "#996d34";
-  ctx.font = 'bold 11px Arial';
-  ctx.fillText("BLESSING MESSAGE", 360, 418);
+  ctx.font = 'bold 10px Arial';
+  ctx.fillText("BLESSING MESSAGE", 270, 362);
 
+  const boxX = 100, boxY = 388, boxW = 340, boxH = 140;
   const items = [];
-  const compact = $("showEnglishAs").value === "compact";
   for(const [code, text] of s.lines){
-    if(code === "ar" || code === "ur"){
-      items.push({text, font:'{size}px serif', bump:8, maxWidth:470, lineHeight:(sz)=>Math.round(sz*1.18), gap:6});
+    if(code === "ar"){
+      items.push({text, font:'{size}px serif', delta:8, lineHeight:30, gap:4, maxWidth:boxW});
     } else {
-      items.push({text, font:'{size}px Arial', bump: compact ? -2 : 0, maxWidth:470, lineHeight:(sz)=>Math.round(sz*1.28), gap:6});
+      items.push({text, font:'{size}px Arial', delta:0, lineHeight:19, gap:4, maxWidth:boxW});
     }
   }
-  const fitted = fitLines(ctx, items, 210);
-  let currentY = 448;
+  const fitted = fitLines(ctx, items, boxH, 18, 12, '{size}px Arial');
+  let y = boxY;
   ctx.fillStyle = "#573719";
   for(const item of fitted){
     ctx.font = item.font.replace("{size}", item.size);
     for(const line of item.lines){
-      ctx.fillText(line, w/2, currentY);
-      currentY += item.lineHeight(item.size);
+      ctx.fillText(line, 270, y);
+      y += item.lineHeight;
     }
-    currentY += 2;
+    y += 4;
   }
-
   ctx.fillStyle = "#7c5120";
-  ctx.font = 'bold 18px Arial';
-  ctx.fillText(s.fromName, w/2, 688);
+  ctx.font = 'bold 16px Arial';
+  ctx.fillText(s.fromName, 270, 548);
 }
 
-async function generateVideo(){
-  const canvas = $("previewCanvas");
-  const stream = canvas.captureStream(30);
-  let mime = "";
-  if(MediaRecorder.isTypeSupported("video/webm;codecs=vp9")) mime = "video/webm;codecs=vp9";
-  else if(MediaRecorder.isTypeSupported("video/webm;codecs=vp8")) mime = "video/webm;codecs=vp8";
-  else if(MediaRecorder.isTypeSupported("video/webm")) mime = "video/webm";
-  let recorder;
-  try{
-    recorder = mime ? new MediaRecorder(stream, {mimeType:mime}) : new MediaRecorder(stream);
-  }catch(e){
-    $("status").textContent = "Video recording is not supported in this browser.";
+async function generateGif(){
+  if(typeof GIF === "undefined"){
+    $("status").textContent = "GIF library failed to load. Open in Safari/Chrome with internet on.";
     return;
   }
-
-  const chunks = [];
-  recorder.ondataavailable = e => { if(e.data && e.data.size) chunks.push(e.data); };
-
-  const durationSec = parseInt($("duration").value, 10);
-  const totalFrames = durationSec * 30;
-  $("generateVideoBtn").disabled = true;
-  $("downloadVideoBtn").disabled = true;
-  $("status").textContent = "Generating video...";
-
-  recorder.start(100);
-  for(let i=0;i<totalFrames;i++){
-    drawPreview(i, totalFrames);
-    $("status").textContent = "Generating video... " + Math.round((i+1)/totalFrames*100) + "%";
-    await new Promise(r => setTimeout(r, 1000/30));
-  }
-
-  await new Promise(resolve => {
-    recorder.onstop = resolve;
-    recorder.stop();
+  const frameCount = parseInt($("frames").value, 10);
+  $("generateGifBtn").disabled = true;
+  $("downloadGifBtn").disabled = true;
+  $("status").textContent = "Generating GIF...";
+  const cv = $("previewCanvas");
+  const ctx = cv.getContext("2d");
+  const gif = new GIF({
+    workers: 2,
+    quality: 12,
+    width: cv.width,
+    height: cv.height,
+    workerScript: "https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.worker.js"
   });
-
-  videoBlob = new Blob(chunks, {type: recorder.mimeType || "video/webm"});
-  const url = URL.createObjectURL(videoBlob);
-  $("videoPreview").src = url;
-  $("videoPreview").style.display = "block";
-  $("downloadVideoBtn").disabled = false;
-  $("generateVideoBtn").disabled = false;
-  $("status").textContent = "Video ready.";
-  drawPreview(0, totalFrames);
+  for(let i=0;i<frameCount;i++){
+    drawPreview(i, frameCount);
+    gif.addFrame(ctx, {copy:true, delay:110});
+  }
+  gif.on("progress", p => $("status").textContent = "Generating GIF... " + Math.round(p*100) + "%");
+  gif.on("finished", blob => {
+    gifBlob = blob;
+    const url = URL.createObjectURL(blob);
+    $("gifPreview").src = url;
+    $("gifPreview").style.display = "block";
+    $("downloadGifBtn").disabled = false;
+    $("generateGifBtn").disabled = false;
+    $("status").textContent = "GIF ready.";
+    drawPreview(0,1);
+  });
+  gif.render();
 }
 
-function downloadVideo(){
-  if(!videoBlob) return;
-  const ext = (videoBlob.type || "").includes("mp4") ? "mp4" : "webm";
+function downloadGif(){
+  if(!gifBlob) return;
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(videoBlob);
-  a.download = "eid-card-video." + ext;
+  a.href = URL.createObjectURL(gifBlob);
+  a.download = "eid-card.gif";
   a.click();
-}
-
-async function autoCreate(){
-  generateMessage();
-  await new Promise(r=>setTimeout(r,100));
-  generateVideo();
 }
 
 $("generateBtn").addEventListener("click", generateMessage);
 $("useBtn").addEventListener("click", useGenerated);
-$("generateVideoBtn").addEventListener("click", generateVideo);
-$("downloadVideoBtn").addEventListener("click", downloadVideo);
-$("autoBtn").addEventListener("click", autoCreate);
-
-[
-  "recipient","fromName","messageMode","showEnglishAs","customMessage"
-].forEach(id => $(id).addEventListener("input", ()=>drawPreview(0,90)));
-["theme","duration"].forEach(id => $(id).addEventListener("change", ()=>drawPreview(0,90)));
-document.querySelectorAll(".langBox").forEach(el => el.addEventListener("change", ()=>{generateMessage(); drawPreview(0,90);}));
+$("generateGifBtn").addEventListener("click", generateGif);
+$("downloadGifBtn").addEventListener("click", downloadGif);
+["recipient","fromName","englishMessage","urduMessage","turkishMessage","frenchMessage","spanishMessage"].forEach(id => $(id).addEventListener("input", ()=>drawPreview(0,1)));
+["theme","frames"].forEach(id => $(id).addEventListener("change", ()=>drawPreview(0,1)));
+document.querySelectorAll(".langBox").forEach(el => el.addEventListener("change", ()=>drawPreview(0,1)));
 
 generateMessage();
-drawPreview(0,90);
+drawPreview(0,1);
 </script>
 </body>
 </html>
