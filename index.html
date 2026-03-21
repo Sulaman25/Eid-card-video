@@ -125,7 +125,7 @@
     <div class="brand">
       <div>
         <h1>Eid Card Studio</h1>
-        <div class="tag">App UI + animated export merged</div>
+        <div class="tag">App UI + animated export merged · CACHE KILL V9999</div>
       </div>
       <button class="btn secondary" id="previewTabBtn">Preview</button>
     </div>
@@ -294,12 +294,11 @@ Fatima</textarea>
       <div class="pane" id="pane-export">
         <div class="section">
           <h3>Exports</h3>
-          <div class="sub">PNG is static. Animated export uses browser video format, often WebM. Animated now prepares first, then you can Share or Download.</div>
+          <div class="sub">PNG is static. Animated export uses browser video format, often WebM. Animated now prepares first, then you tap Download.</div>
           <div class="row" style="margin-top:10px">
             <button class="btn primary" id="oneClickPngBtn">Export All PNGs</button>
             <button class="btn secondary" id="oneClickAnimatedBtn">Export All Animated</button>
             <button class="btn secondary" id="saveCurrentPngBtn">Save Current PNG</button>
-            <button class="btn secondary" id="shareAnimatedBtn">Share Animated</button>
             <button class="btn ghost" id="downloadPreparedAnimatedBtn">Download Prepared Animated</button>
           </div>
         </div>
@@ -329,7 +328,6 @@ Fatima</textarea>
     <button class="btn primary" id="bottomGenerateBtn">Generate</button>
     <button class="btn secondary" id="bottomSaveBtn">Save PNG</button>
     <button class="btn secondary" id="bottomAnimatedBtn">Prepare Animated</button>
-    <button class="btn secondary" id="bottomShareAnimatedBtn">Share Animated</button>
   </div>
 </div>
 
@@ -728,39 +726,6 @@ function downloadBlob(blob, filename){
   a.click();
 }
 
-
-async function shareAnimated(){
-  if(!lastBlob){
-    $("status").textContent = "Prepare animated first.";
-    return;
-  }
-
-  const file = new File(
-    [lastBlob],
-    "eid_animated.webm",
-    { type: lastBlob.type || "video/webm" }
-  );
-
-  try{
-    if(navigator.canShare && navigator.canShare({ files: [file] })){
-      await navigator.share({
-        files: [file],
-        title: "Eid Card",
-        text: "Animated Eid Card"
-      });
-      $("status").textContent = "Shared animated file.";
-      return;
-    }
-  }catch(err){
-    if(err && err.name === "AbortError"){
-      $("status").textContent = "Share canceled.";
-      return;
-    }
-  }
-
-  downloadPreparedAnimated();
-}
-
 function downloadPreparedAnimated(){
   if(exportsTemporarilyBlocked()) return;
   if(!lastBlob){
@@ -845,13 +810,11 @@ $("oneClickPngBtn").addEventListener("click", exportAllPNGs);
 $("oneClickAnimatedBtn").addEventListener("click", () => { if(!exportsTemporarilyBlocked()) exportAllAnimated(); });
 $("saveCurrentPngBtn").addEventListener("click", saveCurrentPNG);
 $("downloadPreparedAnimatedBtn").addEventListener("click", downloadPreparedAnimated);
-$("shareAnimatedBtn").addEventListener("click", shareAnimated);
 $("exportCurrentAnimatedBtn").addEventListener("click", async ()=> { if(exportsTemporarilyBlocked()) return;
   await exportAnimatedForCurrent();
 });
 $("bottomGenerateBtn").addEventListener("click", generateMessage);
 $("bottomSaveBtn").addEventListener("click", saveCurrentPNG);
-$("bottomShareAnimatedBtn").addEventListener("click", shareAnimated);
 $("bottomAnimatedBtn").addEventListener("click", async ()=> { if(exportsTemporarilyBlocked()) return;
   await exportAnimatedForCurrent();
 });
@@ -952,11 +915,6 @@ document.addEventListener("keydown", (e) => {
 
 drawPreview(0,90);
 
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
-  });
-}
 
 </script>
 </body>
