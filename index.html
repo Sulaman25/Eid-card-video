@@ -172,17 +172,16 @@ Fatima</textarea>
 
       <div class="pane" id="pane-design">
         <div class="section">
-          <h3>Card style</h3><div class="sub">DESIGN TAB FIXED · Premium themes + animation packs</div>
+          <h3>Card style</h3>
           <div class="grid3">
             <div>
               <label for="theme">Theme</label>
               <select id="theme">
-                <option value="blackgold">Black Gold Luxury</option>
-                <option value="royalblue">Royal Blue Mosque</option>
-                <option value="emerald">Emerald Minaret</option>
-                <option value="desert">Desert Moon</option>
-                <option value="ottoman">Ottoman Lantern</option>
-                <option value="laylat">Night of Power</option>
+                <option value="midnight">Midnight Teal</option>
+                <option value="emerald">Emerald</option>
+                <option value="burgundy">Burgundy</option>
+                <option value="navy">Navy</option>
+                <option value="charcoal">Charcoal</option>
               </select>
             </div>
             <div>
@@ -203,7 +202,7 @@ Fatima</textarea>
               </select>
             </div>
           </div>
-          <div class="grid3" style="margin-top:10px">
+          <div class="grid2" style="margin-top:10px">
             <div>
               <label for="fromName">From</label>
               <input id="fromName" value="From Suleiman & Family">
@@ -214,17 +213,6 @@ Fatima</textarea>
                 <option value="short">Short</option>
                 <option value="medium" selected>Medium</option>
                 <option value="long">Long</option>
-              </select>
-            </div>
-            <div>
-              <label for="animationPack">Animation pack</label>
-              <select id="animationPack">
-                <option value="lanterns">Lantern Drift</option>
-                <option value="twinkle">Star Twinkle</option>
-                <option value="crescent">Crescent Glow</option>
-                <option value="dust">Golden Dust</option>
-                <option value="shimmer">Mosque Shimmer</option>
-                <option value="calligraphy">Calligraphy Reveal</option>
               </select>
             </div>
           </div>
@@ -306,11 +294,12 @@ Fatima</textarea>
       <div class="pane" id="pane-export">
         <div class="section">
           <h3>Exports</h3>
-          <div class="sub">PNG is static. Animated export uses browser video format, often WebM. Animated now prepares first, then you tap Download.</div>
+          <div class="sub">PNG is static. Animated export uses browser video format, often WebM. Animated now prepares first, then you can Share or Download.</div>
           <div class="row" style="margin-top:10px">
             <button class="btn primary" id="oneClickPngBtn">Export All PNGs</button>
             <button class="btn secondary" id="oneClickAnimatedBtn">Export All Animated</button>
             <button class="btn secondary" id="saveCurrentPngBtn">Save Current PNG</button>
+            <button class="btn secondary" id="shareAnimatedBtn">Share Animated</button>
             <button class="btn ghost" id="downloadPreparedAnimatedBtn">Download Prepared Animated</button>
           </div>
         </div>
@@ -340,17 +329,17 @@ Fatima</textarea>
     <button class="btn primary" id="bottomGenerateBtn">Generate</button>
     <button class="btn secondary" id="bottomSaveBtn">Save PNG</button>
     <button class="btn secondary" id="bottomAnimatedBtn">Prepare Animated</button>
+    <button class="btn secondary" id="bottomShareAnimatedBtn">Share Animated</button>
   </div>
 </div>
 
 <script>
 const THEMES = {
-  blackgold:{bg1:"#07090d",bg2:"#151b24",gold:"#e8c67a",gold2:"#f5ddb0",paper1:"#efe4c7",paper2:"#e2d1a9",cardA:"#1c2c3c"},
-  royalblue:{bg1:"#0c2346",bg2:"#061120",gold:"#d9bf7c",gold2:"#f5ddb0",paper1:"#f4ead3",paper2:"#e6d5b8",cardA:"#1d4380"},
-  emerald:{bg1:"#0d2b1f",bg2:"#08140f",gold:"#e4c16e",gold2:"#f5ddb0",paper1:"#f4e8cf",paper2:"#e7d8b6",cardA:"#17422d"},
-  desert:{bg1:"#4a2d1c",bg2:"#23140c",gold:"#dfb16e",gold2:"#f3d2a6",paper1:"#f5e4ca",paper2:"#ead2ae",cardA:"#6a3d24"},
-  ottoman:{bg1:"#38141f",bg2:"#17090f",gold:"#ebc16b",gold2:"#f9ddb0",paper1:"#f4e4cb",paper2:"#e7cfaa",cardA:"#5a2030"},
-  laylat:{bg1:"#161230",bg2:"#080713",gold:"#e6c975",gold2:"#f4ddb7",paper1:"#f0e6d5",paper2:"#dfd2bb",cardA:"#282050"}
+  midnight:{bg1:"#102534",bg2:"#081118",gold:"#e8c67a",gold2:"#f5ddb0",paper1:"#f6ebd2",paper2:"#eadcbf",cardA:"#143744"},
+  emerald:{bg1:"#143426",bg2:"#08140e",gold:"#e8c67a",gold2:"#f5ddb0",paper1:"#f6ebd2",paper2:"#eadcbf",cardA:"#17422d"},
+  burgundy:{bg1:"#3b1922",bg2:"#16090e",gold:"#e8c67a",gold2:"#f5ddb0",paper1:"#f6ebd2",paper2:"#eadcbf",cardA:"#4e1e2a"},
+  navy:{bg1:"#16284d",bg2:"#0a1020",gold:"#e8c67a",gold2:"#f5ddb0",paper1:"#f6ebd2",paper2:"#eadcbf",cardA:"#203663"},
+  charcoal:{bg1:"#2c2d30",bg2:"#131416",gold:"#e8c67a",gold2:"#f5ddb0",paper1:"#f6ebd2",paper2:"#eadcbf",cardA:"#3a3d42"}
 };
 const DATA = {
   ar:{open:["عيد مبارك،","كل عام وأنتم بخير،","أطيب التهاني بعيد الفطر،","أهديكم أجمل التهاني،"],
@@ -544,12 +533,7 @@ function resolveText(lang){
 function applyPreset(tone){ $("tone").value = tone; generateMessage(); }
 function styleConfig(){
   const m = $("styleMode").value;
-  const pack = $("animationPack") ? $("animationPack").value : "lanterns";
-  if(m === "minimal") return {orn:false, lanterns:pack==="lanterns", particles:8, moonGlow:.14, paperRadius:14, goldAlpha:.18, pack};
-  if(m === "modern") return {orn:true, lanterns:pack==="lanterns", particles:16, moonGlow:.18, paperRadius:20, goldAlpha:.22, pack};
-  if(m === "classic") return {orn:true, lanterns:pack==="lanterns", particles:18, moonGlow:.22, paperRadius:18, goldAlpha:.30, pack};
-  return {orn:true, lanterns:pack==="lanterns", particles:22, moonGlow:.26, paperRadius:20, goldAlpha:.35, pack};
-};
+  if(m === "minimal") return {orn:false, lanterns:false, particles:4, moonGlow:.12, paperRadius:14, goldAlpha:.16};
   if(m === "modern") return {orn:true, lanterns:false, particles:8, moonGlow:.16, paperRadius:20, goldAlpha:.20};
   if(m === "classic") return {orn:true, lanterns:true, particles:10, moonGlow:.18, paperRadius:18, goldAlpha:.26};
   return {orn:true, lanterns:true, particles:12, moonGlow:.22, paperRadius:20, goldAlpha:.30};
@@ -677,36 +661,12 @@ function drawPreview(frame, total){
   ctx.drawImage(backgroundCacheCanvas, 0, 0);
 
   // Lightweight animated overlays only
-  if(style.pack === "crescent"){
-    const crescentGlow = ctx.createRadialGradient(112,112,20,112,112,140);
-    crescentGlow.addColorStop(0,"rgba(255,220,140,0.28)");
-    crescentGlow.addColorStop(1,"rgba(255,220,140,0)");
-    ctx.fillStyle = crescentGlow;
-    ctx.fillRect(0,0,w,h);
-  }
-  if(style.pack === "twinkle" || style.pack === "calligraphy"){
-    for(let i=0;i<12;i++){
-      const x=(i*53)%w, y=(i*31)%260;
-      const tw=1 + Math.max(0,Math.sin(phase*Math.PI*2+i))*1.2;
-      ctx.fillStyle="rgba(255,245,210,0.85)";
-      ctx.beginPath(); ctx.arc(x,y,tw,0,Math.PI*2); ctx.fill();
-    }
-  }
   for(let i=0;i<style.particles;i++){
     const x=(i*29 + frame*7)%w, y=h-((i*37 + frame*9)%(h+70));
     ctx.fillStyle="rgba(255,213,120,0.72)";
     ctx.beginPath(); ctx.arc(x,y,2+(i%2),0,Math.PI*2); ctx.fill();
   }
 
-  if(style.pack === "shimmer"){
-    const shimmerX = (phase * (w + 120)) - 120;
-    const sg = ctx.createLinearGradient(shimmerX,0,shimmerX+90,0);
-    sg.addColorStop(0,"rgba(255,255,255,0)");
-    sg.addColorStop(0.5,"rgba(255,244,200,0.08)");
-    sg.addColorStop(1,"rgba(255,255,255,0)");
-    ctx.fillStyle = sg;
-    ctx.fillRect(86,392,548,356);
-  }
   if(style.lanterns){
     for(let i=0;i<5;i++){
       const lx = 52 + i*130 + Math.sin(phase*Math.PI*2+i)*7;
@@ -720,7 +680,7 @@ function drawPreview(frame, total){
   ctx.textAlign = "center";
   ctx.shadowColor = "rgba(255,221,160,0.5)";
   ctx.shadowBlur = 12 + 6*Math.sin(phase*Math.PI*2);
-  ctx.fillStyle = style.pack === "calligraphy" ? `rgba(245,221,176,${0.6 + 0.4*Math.abs(Math.sin(phase*Math.PI))})` : s.theme.gold2;
+  ctx.fillStyle = s.theme.gold2;
   ctx.font = $("styleMode").value === "modern" ? 'bold 50px Arial' : 'bold 54px serif';
   ctx.fillText("عيد مبارك", w/2, 120);
   ctx.shadowBlur = 0;
@@ -766,6 +726,39 @@ function downloadBlob(blob, filename){
   a.href = URL.createObjectURL(blob);
   a.download = filename;
   a.click();
+}
+
+
+async function shareAnimated(){
+  if(!lastBlob){
+    $("status").textContent = "Prepare animated first.";
+    return;
+  }
+
+  const file = new File(
+    [lastBlob],
+    "eid_animated.webm",
+    { type: lastBlob.type || "video/webm" }
+  );
+
+  try{
+    if(navigator.canShare && navigator.canShare({ files: [file] })){
+      await navigator.share({
+        files: [file],
+        title: "Eid Card",
+        text: "Animated Eid Card"
+      });
+      $("status").textContent = "Shared animated file.";
+      return;
+    }
+  }catch(err){
+    if(err && err.name === "AbortError"){
+      $("status").textContent = "Share canceled.";
+      return;
+    }
+  }
+
+  downloadPreparedAnimated();
 }
 
 function downloadPreparedAnimated(){
@@ -852,11 +845,13 @@ $("oneClickPngBtn").addEventListener("click", exportAllPNGs);
 $("oneClickAnimatedBtn").addEventListener("click", () => { if(!exportsTemporarilyBlocked()) exportAllAnimated(); });
 $("saveCurrentPngBtn").addEventListener("click", saveCurrentPNG);
 $("downloadPreparedAnimatedBtn").addEventListener("click", downloadPreparedAnimated);
+$("shareAnimatedBtn").addEventListener("click", shareAnimated);
 $("exportCurrentAnimatedBtn").addEventListener("click", async ()=> { if(exportsTemporarilyBlocked()) return;
   await exportAnimatedForCurrent();
 });
 $("bottomGenerateBtn").addEventListener("click", generateMessage);
 $("bottomSaveBtn").addEventListener("click", saveCurrentPNG);
+$("bottomShareAnimatedBtn").addEventListener("click", shareAnimated);
 $("bottomAnimatedBtn").addEventListener("click", async ()=> { if(exportsTemporarilyBlocked()) return;
   await exportAnimatedForCurrent();
 });
