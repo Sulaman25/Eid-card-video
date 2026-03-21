@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eid-card-studio-v1';
+const CACHE_NAME='eid-card-studio-premiumdesign-v1';
 const URLS = [
   './',
   './index.html',
