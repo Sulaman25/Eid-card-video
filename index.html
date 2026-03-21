@@ -125,7 +125,7 @@
     <div class="brand">
       <div>
         <h1>Eid Card Studio</h1>
-        <div class="tag">App UI + animated export merged · PREMIUM LIVE V1</div>
+        <div class="tag">App UI + animated export merged · TEMPLATE SYSTEM V1</div>
       </div>
       <button class="btn secondary" id="previewTabBtn">Preview</button>
     </div>
@@ -172,7 +172,7 @@ Fatima</textarea>
 
       <div class="pane" id="pane-design">
         <div class="section">
-          <h3>Card style</h3>
+          <h3>Card style</h3><div class="sub">TEMPLATE SYSTEM V1 · warm lantern night visuals</div>
           <div class="grid3">
             <div>
               <label for="theme">Theme</label>
@@ -205,15 +205,63 @@ Fatima</textarea>
           </div>
           <div class="grid2" style="margin-top:10px">
             <div>
+              <label for="cardTemplate">Card template</label>
+              <select id="cardTemplate">
+                <option value="ottoman">Ottoman Lantern</option>
+                <option value="laylat">Night of Power</option>
+                <option value="arch">Archway Mosque</option>
+                <option value="whitegold">White Gold Nikah</option>
+                <option value="desert">Desert Moon</option>
+                <option value="kaaba">Kaaba Black Gold</option>
+                <option value="garden">Firefly Garden</option>
+                <option value="glass">Glass Glow</option>
+              </select>
+            </div>
+            <div>
               <label for="fromName">From</label>
               <input id="fromName" value="From Suleiman & Family">
             </div>
+          </div>
+
+          <div class="grid2" style="margin-top:10px">
             <div>
               <label for="lengthMode">Message length</label>
               <select id="lengthMode">
                 <option value="short">Short</option>
                 <option value="medium" selected>Medium</option>
                 <option value="long">Long</option>
+              </select>
+            </div>
+            <div>
+              <label for="animationPack">Atmosphere</label>
+              <select id="animationPack">
+                <option value="template" selected>Use template default</option>
+                <option value="lanterns">Lantern Night</option>
+                <option value="twinkle">Starry Sky</option>
+                <option value="crescent">Moon Glow</option>
+                <option value="dust">Golden Dust</option>
+                <option value="shimmer">Light Sweep</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid3" style="margin-top:10px">
+            <div>
+              <label for="lengthMode">Message length</label>
+              <select id="lengthMode">
+                <option value="short">Short</option>
+                <option value="medium" selected>Medium</option>
+                <option value="long">Long</option>
+              </select>
+            </div>
+            <div>
+              <label for="animationPack">Atmosphere</label>
+              <select id="animationPack">
+                <option value="lanterns" selected>Lantern Night</option>
+                <option value="twinkle">Starry Sky</option>
+                <option value="crescent">Moon Glow</option>
+                <option value="dust">Golden Dust</option>
+                <option value="shimmer">Light Sweep</option>
               </select>
             </div>
           </div>
@@ -334,13 +382,38 @@ Fatima</textarea>
 
 <script>
 const THEMES = {
-blackgold:{bg1:"#05070b",bg2:"#141b24",gold:"#f0cc7d",gold2:"#fde4b5",paper1:"#f0e2c5",paper2:"#dfcca3",cardA:"#1d2c3d"},
-royalblue:{bg1:"#0b1f48",bg2:"#07111f",gold:"#d5c07a",gold2:"#f5e2bd",paper1:"#f4ead8",paper2:"#e3d4b5",cardA:"#204a89"},
-emerald:{bg1:"#0b291d",bg2:"#07120d",gold:"#e6c36f",gold2:"#f7e2b0",paper1:"#f3ead6",paper2:"#e3d7ba",cardA:"#1c5236"},
-desert:{bg1:"#4b2d1a",bg2:"#24140b",gold:"#e2b06d",gold2:"#f6d3a1",paper1:"#f6e6cf",paper2:"#e8d2b0",cardA:"#6f4329"},
-ottoman:{bg1:"#38121d",bg2:"#17080d",gold:"#edc26e",gold2:"#fbe0b7",paper1:"#f4e2cc",paper2:"#e5cfaa",cardA:"#612537"},
-laylat:{bg1:"#15112f",bg2:"#090713",gold:"#e9cf79",gold2:"#f5e3c0",paper1:"#eee5d8",paper2:"#ddd2bf",cardA:"#2a2355"}
+blackgold:{bg1:"#07090d",bg2:"#171f2a",gold:"#f0cc7d",gold2:"#fde4b5",paper1:"#f5e8cf",paper2:"#e7d7b5",cardA:"#233344",star:"#fff0b6"},
+royalblue:{bg1:"#0a204f",bg2:"#071323",gold:"#e2c67a",gold2:"#fde3b8",paper1:"#f6ead3",paper2:"#e8d7b8",cardA:"#25528f",star:"#d9e8ff"},
+emerald:{bg1:"#0c2d21",bg2:"#081611",gold:"#e8c56f",gold2:"#f9e3b2",paper1:"#f5ead3",paper2:"#e6d8b9",cardA:"#1f5a3b",star:"#dbffe7"},
+desert:{bg1:"#51311d",bg2:"#28170c",gold:"#ebb06d",gold2:"#ffd5a5",paper1:"#f7e8d2",paper2:"#ecd5b3",cardA:"#764729",star:"#ffe4c4"},
+ottoman:{bg1:"#401521",bg2:"#19090f",gold:"#f0c46f",gold2:"#ffe0b8",paper1:"#f6e4cf",paper2:"#e8d0ac",cardA:"#6c2840",star:"#ffe4ef"},
+laylat:{bg1:"#171336",bg2:"#090815",gold:"#ecd178",gold2:"#fbe5c0",paper1:"#f2e8d9",paper2:"#e1d5c0",cardA:"#30275d",star:"#f0ebff"},
+whitegold:{bg1:"#f2ede5",bg2:"#e2d7c7",gold:"#c7a75e",gold2:"#b98d2f",paper1:"#fffdfa",paper2:"#f3ece2",cardA:"#d9cec0",star:"#d8ba78"},
+kaaba:{bg1:"#050608",bg2:"#111418",gold:"#e8c56f",gold2:"#fbe3ab",paper1:"#f1e5c8",paper2:"#e6d3a5",cardA:"#20252c",star:"#fff2c7"},
+garden:{bg1:"#10261f",bg2:"#08120f",gold:"#e4c06d",gold2:"#f5ddaf",paper1:"#f4ead7",paper2:"#e4d9bd",cardA:"#214135",star:"#e3ffe4"},
+glass:{bg1:"#0e1a26",bg2:"#071017",gold:"#d9c07a",gold2:"#f7e6c0",paper1:"#eef4f6",paper2:"#dfe9ee",cardA:"#2a4b59",star:"#e8fbff"}
 };
+
+const TEMPLATE_PRESETS = {
+  ottoman:{theme:"ottoman", styleMode:"classic", pack:"lanterns"},
+  laylat:{theme:"laylat", styleMode:"luxury", pack:"twinkle"},
+  arch:{theme:"royalblue", styleMode:"classic", pack:"shimmer"},
+  whitegold:{theme:"whitegold", styleMode:"minimal", pack:"crescent"},
+  desert:{theme:"desert", styleMode:"modern", pack:"dust"},
+  kaaba:{theme:"kaaba", styleMode:"luxury", pack:"shimmer"},
+  garden:{theme:"garden", styleMode:"modern", pack:"dust"},
+  glass:{theme:"glass", styleMode:"modern", pack:"crescent"}
+};
+
+function applyTemplatePreset(){
+  const sel = $("cardTemplate");
+  if(!sel) return;
+  const p = TEMPLATE_PRESETS[sel.value];
+  if(!p) return;
+  $("theme").value = p.theme;
+  $("styleMode").value = p.styleMode;
+}
+
 const DATA = {
   ar:{open:["عيد مبارك،","كل عام وأنتم بخير،","أطيب التهاني بعيد الفطر،","أهديكم أجمل التهاني،"],
       mid:{Mixed:["تقبل الله منا ومنكم صالح الأعمال وجعل أيامكم مليئة بالسكينة والفرح.","نسأل الله أن يملأ هذا العيد قلوبكم نورًا وبيوتكم بركة.","أسأل الله لكم قبولًا ورحمة وفرحًا جميلًا."],Islamic:["تقبل الله صيامكم وقيامكم ونياتكم.","نسأل الله أن يجدد الإيمان في القلوب والرحمة في البيوت.","أحاطكم الله بالمغفرة والهداية والرضا."],Warm:["أرسل لكم محبتي ودعائي الصادق في هذا اليوم المبارك.","أسأل الله أن يكتب لكم عيدًا هادئًا ومليئًا بالمسرات.","أذكركم اليوم بكل محبة ودعوات طيبة."],Poetic:["ليكن ضوء العيد سكينة تمسح الهم وتوقظ الرجاء.","ليأت العيد كالفجر لطيفًا ومليئًا بالبشائر.","ولتزهر القلوب شكرًا كما تتلألأ فوانيس العيد في السماء."],Formal:["تفضلوا بقبول أصدق التهاني وأطيب الأمنيات.","نسأل الله لكم السلامة والتوفيق في هذه المناسبة المباركة.","مع الدعاء لكم بعيد مبارك مفعم بالخير والنجاح."]},
@@ -533,10 +606,14 @@ function resolveText(lang){
 function applyPreset(tone){ $("tone").value = tone; generateMessage(); }
 function styleConfig(){
   const m = $("styleMode").value;
-  if(m === "minimal") return {orn:false, lanterns:false, particles:4, moonGlow:.12, paperRadius:14, goldAlpha:.16};
-  if(m === "modern") return {orn:true, lanterns:false, particles:8, moonGlow:.16, paperRadius:20, goldAlpha:.20};
-  if(m === "classic") return {orn:true, lanterns:true, particles:10, moonGlow:.18, paperRadius:18, goldAlpha:.26};
-  return {orn:true, lanterns:true, particles:12, moonGlow:.22, paperRadius:20, goldAlpha:.30};
+  const tpl = $("cardTemplate") ? $("cardTemplate").value : "ottoman";
+  const preset = TEMPLATE_PRESETS[tpl] || TEMPLATE_PRESETS.ottoman;
+  const rawPack = $("animationPack") ? $("animationPack").value : "template";
+  const pack = rawPack === "template" ? preset.pack : rawPack;
+  if(m === "minimal") return {orn:false, lanterns:pack==="lanterns", particles:6, moonGlow:.18, paperRadius:16, goldAlpha:.18, pack};
+  if(m === "modern") return {orn:true, lanterns:pack==="lanterns", particles:10, moonGlow:.22, paperRadius:20, goldAlpha:.22, pack};
+  if(m === "classic") return {orn:true, lanterns:pack==="lanterns", particles:14, moonGlow:.24, paperRadius:18, goldAlpha:.28, pack};
+  return {orn:true, lanterns:pack==="lanterns", particles:18, moonGlow:.28, paperRadius:22, goldAlpha:.34, pack};
 }
 function state(){
   const theme = THEMES[$("theme").value];
@@ -606,9 +683,15 @@ function renderStaticBackgroundToCache(){
   grad.addColorStop(0, s.theme.bg1); grad.addColorStop(1, s.theme.bg2);
   ctx.fillStyle = grad; ctx.fillRect(0,0,w,h);
 
-  const glow = ctx.createRadialGradient(112,98,18,112,98,170);
-  glow.addColorStop(0,`rgba(255,220,140,${style.moonGlow})`); glow.addColorStop(1,"rgba(255,220,140,0)");
+  const glow = ctx.createRadialGradient(112,98,18,112,98,190);
+  glow.addColorStop(0,`rgba(255,220,140,${style.moonGlow})`);
+  glow.addColorStop(1,"rgba(255,220,140,0)");
   ctx.fillStyle = glow; ctx.fillRect(0,0,w,h);
+
+  const warmGlow = ctx.createRadialGradient(w*0.78, h*0.18, 8, w*0.78, h*0.18, 150);
+  warmGlow.addColorStop(0,"rgba(255,215,130,0.06)");
+  warmGlow.addColorStop(1,"rgba(255,215,130,0)");
+  ctx.fillStyle = warmGlow; ctx.fillRect(0,0,w,h);
 
   // Static stars
   for(let i=0;i<58;i++){
@@ -632,6 +715,12 @@ function renderStaticBackgroundToCache(){
   const g2 = ctx.createLinearGradient(0,392,0,790);
   g2.addColorStop(0, s.theme.paper1); g2.addColorStop(1, s.theme.paper2);
   ctx.fillStyle = g2; roundRect(ctx,86,392,548,356,style.paperRadius,true);
+
+  const glass = ctx.createLinearGradient(86,392,634,392);
+  glass.addColorStop(0,"rgba(255,255,255,0.07)");
+  glass.addColorStop(0.5,"rgba(255,255,255,0.02)");
+  glass.addColorStop(1,"rgba(255,255,255,0.07)");
+  ctx.fillStyle = glass; roundRect(ctx,86,392,548,356,style.paperRadius,true);
 
   ctx.fillStyle = "#996d34"; ctx.font = 'bold 11px Arial'; ctx.textAlign = "center";
   ctx.fillText("BLESSING MESSAGE", 360, 418);
@@ -660,7 +749,46 @@ function drawPreview(frame, total){
   ctx.translate(swipeSlideOffset, 0);
   ctx.drawImage(backgroundCacheCanvas, 0, 0);
 
-  // Lightweight animated overlays only
+  // Ramadan atmosphere overlays
+  if(style.pack === "crescent"){
+    const cg = ctx.createRadialGradient(112,112,24,112,112,160);
+    cg.addColorStop(0,"rgba(255,220,140,0.25)");
+    cg.addColorStop(1,"rgba(255,220,140,0)");
+    ctx.fillStyle = cg; ctx.fillRect(0,0,w,h);
+  }
+
+  if(style.pack === "twinkle" || style.pack === "lanterns"){
+    for(let i=0;i<18;i++){
+      const x=(i*41 + 20)%w, y=(i*27 + 30)%260;
+      const tw = 1 + Math.max(0,Math.sin(phase*Math.PI*2+i))*1.3;
+      ctx.fillStyle = "rgba(255,245,210,0.85)";
+      ctx.beginPath(); ctx.arc(x,y,tw,0,Math.PI*2); ctx.fill();
+    }
+  }
+
+  if(style.pack === "shimmer"){
+    const shimmerX = (phase * (w + 160)) - 160;
+    const sg = ctx.createLinearGradient(shimmerX,0,shimmerX+120,0);
+    sg.addColorStop(0,"rgba(255,255,255,0)");
+    sg.addColorStop(0.5,"rgba(255,244,200,0.09)");
+    sg.addColorStop(1,"rgba(255,255,255,0)");
+    ctx.fillStyle = sg;
+    ctx.fillRect(86,392,548,356);
+  }
+
+  const tpl = $("cardTemplate") ? $("cardTemplate").value : "ottoman";
+  if(tpl === "garden"){
+    for(let i=0;i<9;i++){
+      const fx = 80 + ((i*63 + frame*5) % 560);
+      const fy = 250 + ((i*41) % 120);
+      const glow = ctx.createRadialGradient(fx,fy,2,fx,fy,16);
+      glow.addColorStop(0,"rgba(255,240,150,0.28)");
+      glow.addColorStop(1,"rgba(255,240,150,0)");
+      ctx.fillStyle = glow;
+      ctx.fillRect(fx-18,fy-18,36,36);
+    }
+  }
+
   for(let i=0;i<style.particles;i++){
     const x=(i*29 + frame*7)%w, y=h-((i*37 + frame*9)%(h+70));
     ctx.fillStyle="rgba(255,213,120,0.72)";
@@ -669,11 +797,19 @@ function drawPreview(frame, total){
 
   if(style.lanterns){
     for(let i=0;i<5;i++){
-      const lx = 52 + i*130 + Math.sin(phase*Math.PI*2+i)*7;
+      const lx = 52 + i*130 + Math.sin(phase*Math.PI*2+i)*8;
       const ly = 24 + ((frame*7 + i*55)%(h+90)) - 55;
-      ctx.strokeStyle=`rgba(229,196,120,${0.75 + 0.25*Math.sin(phase*Math.PI*2+i)})`;
-      ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(lx+8,ly); ctx.lineTo(lx+8,ly+8); ctx.stroke();
-      ctx.fillStyle="rgba(255,190,80,.34)"; roundRect(ctx,lx,ly+8,16,24,5,true);
+      ctx.strokeStyle=`rgba(229,196,120,${0.72 + 0.22*Math.sin(phase*Math.PI*2+i)})`;
+      ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(lx+9,ly); ctx.lineTo(lx+9,ly+10); ctx.stroke();
+
+      ctx.fillStyle="rgba(255,190,80,.34)";
+      roundRect(ctx,lx,ly+10,18,28,6,true);
+
+      const lg = ctx.createRadialGradient(lx+9,ly+24,4,lx+9,ly+24,28);
+      lg.addColorStop(0,"rgba(255,215,140,0.22)");
+      lg.addColorStop(1,"rgba(255,215,140,0)");
+      ctx.fillStyle = lg;
+      ctx.fillRect(lx-18,ly-2,54,56);
     }
   }
 
@@ -822,7 +958,7 @@ $("bottomAnimatedBtn").addEventListener("click", async ()=> { if(exportsTemporar
 });
 document.querySelectorAll(".presetBtn").forEach(btn => btn.addEventListener("click", ()=>applyPreset(btn.dataset.tone)));
 ["fromName","messageMode","customMessage","styleMode","lengthMode","recipientPrefix","tone","showEnglishAs"].forEach(id => $(id).addEventListener("input", ()=>drawPreview(0,90)));
-["theme","duration","styleMode"].forEach(id => $(id).addEventListener("change", ()=>{ backgroundCacheCanvas = null; drawPreview(0,90); }));
+["theme","duration","styleMode","animationPack","cardTemplate"].forEach(id => $(id).addEventListener("change", ()=>{ applyTemplatePreset(); backgroundCacheCanvas = null; drawPreview(0,90); }));
 document.querySelectorAll(".langBox").forEach(el => el.addEventListener("change", ()=>{ ensureGeneratedFields(); generateMessage(); drawPreview(0,90); }));
 
 
